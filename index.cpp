@@ -6,50 +6,109 @@
 
 using namespace std;
 
+
+        
+    // Define Entities
+
+    struct product {
+            
+        bool flag = false;
+        int ID = -1;
+        string name = "";
+        double price = 0.0;
+        int profit_percent = 0.0;
+        unsigned long int sell = 0;
+        int stock = 0;
+        bool active = false;
+
+    };
+    struct moderator {
+
+        bool flag = false;
+        string first_name = "";
+        string last_name = "";
+        string username = "";
+        string password = "";
+        string CNIC = "";
+        string email = "";
+        char phone[10] = {'\0'};
+        int salary = 0;
+        int ID = 0;
+
+    };
+    struct customer {
+
+        string name = "";
+        char CNIC[16] = {'\0'};
+        int ID = 0;
+        bool flag = false;
+
+    };
+    struct purchase {
+        int customerID = -1;
+        double bill = 0.0;
+    };
+    struct item_purchase {
+        int purchaseID = -1;
+        int productID = -1;
+        int quantity = -1;
+        double bill = -1;
+    };
+    struct review {
+
+        int productID = 0; // foreign
+        int moderatorID = -1; // foreign
+        int customerID = 0; // foreign
+        string review = "";
+        int rating = 0;
+        int type = -1;
+        int status = -1;
+        bool flag = false;
+
+    };
+    struct report {
+
+        string subject = "";
+        string body = "";
+        int moderatorID = -1; // foreign
+        int status = -1;
+        bool flag = false;
+
+    };
+
+
+
 // Function Prototypes
 
-void gotoxy(int x, int y);
+void cursorPosition(int x, int y);
 
 void setcolor(int color);
 
 string getString(int limit,bool hide = false,bool alphaOnly = false);
 
-void addProduct(string products[],double pro_cprices[],int pro_profit_percent[],int pro_IDs[],int pro_stock[],bool pro_flag[],int MAX_PRODUCTS,int &productCount);
+void addmoderator(moderator moderators[],int& moderIDcounter,int MAX_MODERATORS);
 
-void addmoderator(string moder_first_name[], string moder_last_name[], string moder_username[], string moder_password[], string moder_CNIC[],
-                string moder_email[], char moder_phone[][10], int moder_salary[], int moder_IDs[], bool moder_flag[], int& moderID, int MAX_MODERATORS);
+void addCustomer(customer customers[],int custIDcounter,int MAX_CUSTOMERS);
 
-void addCustomer(string cust_name[],char cust_CNIC[][16],int cust_IDs[],bool cust_flag[],int custID,int MAX_CUSTOMERS);
+void disableProduct(product products[],int ID,int size);
 
-void disableProduct(int pro_IDs[],bool pro_active[],bool pro_flag[],int ID,int size);
+void deletemoderator(moderator moderators[], int moderID, int MAX_MODERATORS);
 
-void deletemoderator(bool moder_flag[], int moder_IDs[], int moderID, int MAX_MODERATORS);
+void updatePrice(product products[],int ID,int size);
 
-void updatePrice(string products[],int pro_IDs[],double pro_cprices[],int pro_profit_percent[],bool pro_flag[],int ID,int size);
+void editStock(product products[],int productCount);
 
-void editStock(string products,int pro_IDs[],int pro_stock[],bool pro_flag[],int productCount,int MAX_PRODUCTS);
+void updatemoderator(moderator moderators[],int moderID,int MAX_MODERATORS);
 
-void updatemoderator(string moder_first_name[], string moder_last_name[], string moder_username[], string moder_password[], 
-                   string moder_CNIC[], string moder_email[], char moder_phone[][10], int moder_salary[], 
-                   int moder_IDs[], bool moder_flag[], int moderID, int MAX_MODERATORS);
+void buyItems(product products[],purchase purchases[],item_purchase item_purchases[],int custID,int MAX_PRODUCTS,int MAX_PURCHASES,int& purchaseCount,int& item_purCount,int productCount);
 
-void buyItems(string products[],int custID,int pro_IDs[],double pro_cprices[],int pro_profit_percent[],unsigned long int pro_sell[],int pro_stock[],bool pro_active[],int purchases[],double purchaseBill[],int item_purchases[][4],
-bool pro_flag[],int MAX_PRODUCTS,int MAX_PURCHASES,int& purchaseID,int& item_purCount,int productCount);
+int* returnReviewedProducts(int custID,review reviews[],int reviewCount,int productCount,int& distinctCounter);
 
-int* returnBuyedProducts(int custID,int purchases[],int item_purchases[][4],int purchaseID,int item_purCount,int MAX_PRODUCTS,int& distinctCounter);
+void generalReview(int custID, review reviews[], int reviewCount,int MAX_REVIEWS);
 
-int* returnReviewedProducts(int custID,int reviewProID[],int reviewCustID[],int reviewType[],bool review_flag[],int MAX_PRODUCTS,int MAX_REVIEWS,int& distinctCounter);
-
-void generalReview(int custID, string reviews[],int reviewProID[], int reviewCustID[], int reviewRating[],bool review_flag[],int reviewType[], int MAX_REVIEWS);
-
-void proReview(int custID,int purchases[],int item_purchases[][4],int purchaseID,int item_purCount,int productCount,int MAX_PRODUCTS,
-               string reviews[],int reviewProID[], int reviewCustID[], int reviewRating[],bool review_flag[],int reviewType[], int MAX_REVIEWS);
+void proReview(int custID,purchase purchases[],item_purchase item_purchases[],review reviews[],int purchaseCount,int item_purCount,int productCount,int MAX_PRODUCTS, int MAX_REVIEWS);
 
 int navigateMenu(string menuItems[], int menuSize);
-
-int getCredentials(string usernames[], string passwords[],int size,string user);
-
-int loginCustomer(char cust_CNIC[][16],int cust_IDs[],string cust_name[],bool cust_flag[], int MAX_CUSTOMERS);
 
 int intValidation(string text = "\b", string prefix = "",int l_limit = 0,int u_limit = 9);
 
@@ -61,21 +120,17 @@ void displayMenu(string menuItems[], int menuSize, int selected);
 
 void print_logo();
 
-void showPrices(string products[],double pro_cprices[],int pro_profit_percent[],int pro_stock[],bool pro_active[],int pro_IDs[],bool pro_flag[],int MAX_PRODUCTS,bool& flag);
+void showmoderators(moderator moderators[],int MAX_MODERATORS,bool& found);
 
-void showmoderators(string moder_first_name[],string moder_username[],string moder_password[],int moder_IDs[],bool moder_flag[],int MAX_MODERATORS,bool& found);
+void showmoderatorProfile(moderator moderators[], int moderID, int MAX_MODERATORS);
 
-void showmoderatorProfile(string moder_first_name[], string moder_last_name[], string moder_username[], string moder_password[], 
-                        string moder_CNIC[], string moder_email[], char moder_phone[][10], int moder_salary[], 
-                        int moder_IDs[], bool moder_flag[], int moderID, int MAX_MODERATORS);
+void showHistory(purchase purchases[],item_purchase item_purchases[],int custID,product products[],int MAX_PRODUCTS,int MAX_PURCHASES,int& item_purCount);
 
-void showHistory(int purchases[],double purchaseBill[],int item_purchases[][4],int custID,string products[],bool pro_flag[],int pro_IDs[],int MAX_PRODUCTS,int MAX_PURCHASES,int& item_purCount);
+void viewMyReviews(int custID,review reviews[],product products[],int productCount,int reviewCount);
 
-void viewMyReviews(int custID, string reviews[], int reviewRating[], int reviewType[], 
-                   int reviewProID[], int reviewCustID[],string products[],int pro_IDs[], bool pro_flag[], bool review_flag[], 
-                   int MAX_PRODUCTS, int MAX_REVIEWS);
-
-int returnIndexByID(int IDs[],bool flag[],int ID,int size);
+int returnIndexByID(product products[],int ID,int size);
+int returnIndexByID(moderator moderators[],int ID,int size);
+int returnIndexByID(customer customers[],int ID,int size);
 
 string centerString(string str,int width);
 
@@ -89,13 +144,7 @@ string inputEmail();
 
 void copy(char* c1, char c2[]);
 
-char* inputCNIC();
-
-void printBorder();
-
 void displayMenu(string menuItems[], int menuSize, int selected);
-
-void print_logo();
 
 char intToChar(int n);
 
@@ -111,39 +160,24 @@ string prefixToDouble(double n, string prefix,int percesion);
 
 string postfixInt(int n,string str);
 
-void showProductsAdmin(string products[],double pro_cprices[],int pro_profit_percent[],bool pro_active[],int pro_IDs[],bool pro_flag[],int MAX_PRODUCTS);
+void showProductsAdmin(product products[],int MAX_PRODUCTS);
 
-void showPrices(string products[],double pro_cprices[],int pro_profit_percent[],int pro_stock[],bool pro_active[],int pro_IDs[],bool pro_flag[],int MAX_PRODUCTS,bool& flag);
+void showPrices(product products[],int MAX_PRODUCTS,bool& flag);
 
-void showDisabledProducts(string products[],double pro_cprices[],int pro_profit_percent[],int pro_stock[],bool pro_active[],int pro_IDs[],bool pro_flag[],int MAX_PRODUCTS,bool& flag);
+void showDisabledProducts(product products[],int MAX_PRODUCTS,bool& flag);
 
-void outOfStock(string products[],bool pro_flag[],int pro_IDs[],int pro_stock[],int MAX_PRODUCTS,bool& flag);
+void outOfStock(product products[],int productCount,bool& flag);
 
-void showStock(string products[],bool pro_flag[],int pro_IDs[],int pro_stock[],int MAX_PRODUCTS,bool& flag);
-
-void showmoderatorProfile(string moder_first_name[], string moder_last_name[], string moder_username[], string moder_password[], 
-                        string moder_CNIC[], string moder_email[], char moder_phone[][10], int moder_salary[], 
-                        int moder_IDs[], bool moder_flag[], int moderID, int MAX_MODERATORS);
+void showStock(product products[],int MAX_PRODUCTS,bool& flag);
 
 string giveReviewStatus(int status);
 
-void viewGeneralReviews(int custID, string reviews[], int reviewRating[], int reviewType[], 
-                   int reviewProID[], int reviewCustID[],string products[],int pro_IDs[],int reviewStatus[], bool pro_flag[], bool review_flag[], 
-                   int MAX_PRODUCTS, int MAX_REVIEWS);
+void viewProductReviews(int custID,review reviews[],product products[],int productCount,int reviewCount);
 
-void viewProductReviews(int custID, string reviews[], int reviewRating[], int reviewType[], 
-                   int reviewProID[], int reviewCustID[],string products[],int pro_IDs[],int reviewStatus[], bool pro_flag[], bool review_flag[], 
-                   int MAX_PRODUCTS, int MAX_REVIEWS);
-
-void viewMyReviews(int custID, string reviews[], int reviewRating[], int reviewType[], 
-                   int reviewProID[], int reviewCustID[],string products[],int pro_IDs[],int reviewStatus[], bool pro_flag[], bool review_flag[], 
-                   int MAX_PRODUCTS, int MAX_REVIEWS);
-
-void printBuyedItems(string products[],bool pro_flag[],int custID,int pro_IDs[],int purchases[],int item_purchases[][4],int purchaseID,int item_purCount, int MAX_PRODUCTS,int& distinctCounter);
-
-int navigateMenu(string menuItems[], int menuSize);
+void printBuyedItems(purchase purchases[],product products[],int custID,item_purchase item_purchases[],int purchaseCount,int item_purCount, int productCount,int& distinctCounter);
 
 int getCredentials(string usernames[], string passwords[],int size,string user);
+int getCredentials(moderator moderators[],int size);
 
 bool isNum(char a);
 
@@ -151,17 +185,9 @@ char* inputCNIC();
 
 bool isSame(char* c1,char c2[]);
 
-int loginCustomer(char cust_CNIC[][16],int cust_IDs[],string cust_name[],bool cust_flag[], int MAX_CUSTOMERS);
-
-bool isNum(char a);
-
-int charToInt(char a);
-
-int strToInt(string str);
+int loginCustomer(customer customers[], int MAX_CUSTOMERS);
 
 string popOut(string str);
-
-int intValidation(string text,string prefix,int l_limit,int u_limit);
 
 char lastChar(string str);
 
@@ -169,78 +195,51 @@ double strToDouble(string str);
 
 double doubleValidation(string text,double limit,int percesion);
 
-void addProduct(string products[],double pro_cprices[],int pro_profit_percent[],int pro_IDs[],int pro_stock[],bool pro_active[],bool pro_flag[],int MAX_PRODUCTS,int &productCount);
+void addProduct(product products[],int& productCount,int MAX_PRODUCTS);
 
 char* inputPhoneNo();
 
-void addmoderator(string moder_first_name[], string moder_last_name[], string moder_username[], string moder_password[], string moder_CNIC[],
-                string moder_email[], char moder_phone[][10], int moder_salary[], int moder_IDs[], bool moder_flag[], int& moderID, int MAX_MODERATORS);
+void enableProduct(product products[],int ID,int size);
 
-void addCustomer(string cust_name[],char cust_CNIC[][16],int cust_IDs[],bool cust_flag[],int custID,int MAX_CUSTOMERS);
+void copyIntArray(int arr1[],const product products[],int size);
 
-void enableProduct(int pro_IDs[],bool pro_active[],bool pro_flag[],int ID,int size);
+int* returnBuyedProducts(int custID,purchase purchases[],item_purchase item_purchases[],int purchaseCount,int item_purCount,int MAX_PRODUCTS,int& distinctCounter);
 
-void disableProduct(int pro_IDs[],bool pro_active[],bool pro_flag[],int ID,int size);
+int strToInt(string str);
 
-void deletemoderator(bool moder_flag[], int moder_IDs[], int moderID, int MAX_MODERATORS);
+void loadData(product products[],int& productCount,int MAX_PRODUCTS,
+              moderator moderators[],int MAX_MODERATORS,
+              customer customers[],int MAX_CUSTOMERS,int& custIDcounter,
+              purchase purchases[],int& purchaseCount,int& moderIDcounter,
+              item_purchase item_purchases[],int& item_purCount,
+              review reviews[],int MAX_REVIEWS,int& reviewCount,
+              report reports[],int MAX_REPORTS);
 
-void updatePrice(string products[],int pro_IDs[],double pro_cprices[],int pro_profit_percent[],bool pro_flag[],int ID,int size);
+void storeData(product products[],int productCount,int MAX_PRODUCTS,
+              moderator moderators[],int MAX_MODERATORS,
+              customer customers[],int MAX_CUSTOMERS,int& custIDcounter,
+              purchase purchases[],int& purchaseCount,int& moderIDcounter,
+              item_purchase item_purchases[],int& item_purCount,
+              review reviews[],int MAX_REVIEWS,int& reviewCount,
+              report reports[],int MAX_REPORTS);
 
-void editStock(string products[],int pro_IDs[],int pro_stock[],bool pro_flag[],int productCount,int MAX_PRODUCTS);
+int returnIndexOfReview(int number,review reviews[],int reviewCount);
 
-void updatemoderator(string moder_first_name[], string moder_last_name[], string moder_username[], string moder_password[], 
-                   string moder_CNIC[], string moder_email[], char moder_phone[][10], int moder_salary[], 
-                   int moder_IDs[], bool moder_flag[], int moderID, int MAX_MODERATORS);
-
-int returnIndexByID(int IDs[],bool flag[],int ID,int size);
-
-void generalReview(int custID, string reviews[],int reviewProID[], int reviewCustID[], int reviewRating[],int reviewModer[],int reviewStatus[],bool review_flag[],int reviewType[], int MAX_REVIEWS);
-
-void proReview(int custID,int purchases[],int item_purchases[][4],int purchaseID,int item_purCount,int productCount,int MAX_PRODUCTS,
-               string reviews[],int reviewProID[], int reviewCustID[], int reviewRating[],int reviewModer[],int reviewStatus[],bool review_flag[],int reviewType[], int MAX_REVIEWS);
-
-void copyIntArray(int arr1[],const int arr2[],int size);
-
-void buyItems(string products[],int custID,int pro_IDs[],double pro_cprices[],int pro_profit_percent[],unsigned long int pro_sell[],int pro_stock[],bool pro_active[],int purchases[],double purchaseBill[],int item_purchases[][4],
-bool pro_flag[],int MAX_PRODUCTS,int MAX_PURCHASES,int& purchaseID,int& item_purCount,int productCount);
-
-int* returnReviewedProducts(int custID,int reviewProID[],int reviewCustID[],int reviewType[],bool review_flag[],int MAX_PRODUCTS,int MAX_REVIEWS,int& distinctCounter);
-
-int* returnBuyedProducts(int custID,int purchases[],int item_purchases[][4],int purchaseID,int item_purCount,int MAX_PRODUCTS,int& distinctCounter);
-
-void loadData(bool pro_flag[],int pro_IDs[],string products[],double pro_cprices[],int pro_profit_percent[],unsigned long int pro_sell[],int pro_stock[],bool pro_active[],int& productCount,int MAX_PRODUCTS,
-              bool moder_flag[],string moder_first_name[],string moder_last_name[],string moder_username[],string moder_password[],string moder_CNIC[],string moder_email[],char moder_phone[][10],int moder_salary[],int moder_IDs[],int& moderID,int MAX_MODERATORS,
-              bool cust_flag[],string cust_name[],char cust_CNIC[][16],int cust_IDs[],int& custID,int MAX_CUSTOMERS,
-              int purchases[],double purchaseBill[],int& purchaseID,
-              int item_purchases[][4],int& item_purCount,
-              bool review_flag[],int reviewType[],int reviewProID[],int reviewCustID[],string reviews[],int reviewStatus[],int reviewModer[],int reviewRating[],int MAX_REVIEWS,
-              string reportSubject[],string reports[],bool report_flag[],int report_status[],int report_moderator[],int MAX_REPORTS);
-
-void storeData(bool pro_flag[],int pro_IDs[],string products[],double pro_cprices[],int pro_profit_percent[],unsigned long int pro_sell[],int pro_stock[],bool pro_active[],int& productCount,int MAX_PRODUCTS,
-               bool moder_flag[],string moder_first_name[],string moder_last_name[],string moder_username[],string moder_password[],string moder_CNIC[],string moder_email[],char moder_phone[][10],int moder_salary[],int moder_IDs[],int& moderID,int MAX_MODERATORS,
-               bool cust_flag[],string cust_name[],char cust_CNIC[][16],int cust_IDs[],int& custID,int MAX_CUSTOMERS,
-               int purchases[],double purchaseBill[],int& purchaseID,
-               int item_purchases[][4],int& item_purCount,
-               bool review_flag[],int reviewType[],int reviewProID[],int reviewCustID[],string reviews[],int reviewStatus[],int reviewModer[],int reviewRating[],int MAX_REVIEWS,
-               string reportSubject[],string reports[],bool report_flag[],int report_status[],int report_moderator[],int MAX_REPORTS);
-
-int returnIndexOfReview(int number,bool review_flag[],int reviewStatus[],int MAX_REVIEWS);
-
-void moderateReviews(int moderID,bool review_flag[],int reviewCustID[],int reviewModer[],int reviewProID[],int reviewRating[],string reviews[],int reviewStatus[],int reviewType[],
-string cust_name[],bool cust_flag[],int cust_IDs[],int MAX_CUSTOMERS,
-string products[],int pro_IDs[],bool pro_flag[],int MAX_PRODUCTS,int MAX_REVIEWS,int type,bool edit = false);
+void moderateReviews(review reviews[],customer customers[],product products[],int moderID,int reviewCount,int MAX_CUSTOMERS,int MAX_PRODUCTS,int type,bool edit = false);
 
 void printHeader(string str);
 
+int charToInt(char a);
+
 bool printAble(char c);
 
-void reportToAdmin(int moderator,string reportSubject[],string reports[],bool report_flag[],int report_status[],int report_moderator[],int MAX_REPORTS);
+void reportToAdmin(int moderator,report reports[],int MAX_REPORTS);
 
 string centerString(string str,int width);
 
-void viewRequest(string moder_first_name[],int moder_IDs[],bool moder_flag[],string reportSubject[],string reports[],int report_moderator[],bool report_flag[],int report_status[],int MAX_MODERATORS,int MAX_REPORTS,int status,int n);
+void viewRequest(moderator moderators[],report reports[],int MAX_MODERATORS,int MAX_REPORTS,int status,int n);
 
-void viewRequests(string moder_first_name[],int moder_IDs[],bool moder_flag[],string reportSubject[],string reports[],int report_moderator[],bool report_flag[],int report_status[],int MAX_MODERATORS,int MAX_REPORTS,int status);
+void viewRequests(moderator moderators[],report reports[],int MAX_MODERATORS,int MAX_REPORTS,int status);
 
 void deleteDisclaimer(string entity);
 
@@ -248,17 +247,19 @@ void initializeByIndex(int arr[],int size);
 
 void sortProducts(int indexes[],unsigned long int numbers[],int size,char order);
 
-void copyULIntArray(unsigned long int arr1[],const unsigned long int arr2[],int size);
+void copyULIntArray(unsigned long int arr1[],product products[],int size);
 
-void printSortedItems(string products[],int pro_IDs[],unsigned long int pro_sell[],int productCount,char order);
+void printSortedItems(product products[],int productCount,char order);
 
 bool isAlpha(char a);
 
 string inputEmail();
 
+void viewGeneralReviews(int custID,review reviews[],int reviewCount);
 
-// void showProductDetails(string products[],double pro_cprices[],int pro_profit_percent[],int proIndex,bool admin);
-// void showProductDetails(string products[],double pro_cprices[],int pro_profit_percent[],int proIndex,bool admin) {
+
+// void showProductDetails(product products[],double pro_cprices[],int pro_profit_percent[],int proIndex,bool admin);
+// void showProductDetails(product products[],double pro_cprices[],int pro_profit_percent[],int proIndex,bool admin) {
 
 //     cout << "Name : " << products[proIndex] << endl;
 //     cout << "Cost Price : " << pro_cprices[proIndex] << endl;
@@ -330,171 +331,63 @@ int main() {
     int cReview_menuSize = sizeof(cReview_menu) / sizeof(cReview_menu[0]);
 
 
-    // Reports/requests
-
-    const int MAX_REPORTS = 50;
-    string reports[MAX_REPORTS] = {""};
-    bool report_flag[MAX_REPORTS] = {false};
-    int report_moderator[MAX_REPORTS] = {-1};
-    int report_status[MAX_REPORTS] = {-1};
-    string reportSubject[MAX_REPORTS] = {""};
-        
     // Products
 
     const int MAX_PRODUCTS = 100;
-    bool pro_flag[MAX_PRODUCTS] = {false};
-    int pro_IDs[MAX_PRODUCTS] = {0};
-    string products[MAX_PRODUCTS] = {""};
-    double pro_cprices[MAX_PRODUCTS] = {0.0};
-    int pro_profit_percent[MAX_PRODUCTS] = {0};
-    unsigned long int pro_sell[MAX_PRODUCTS] = {0};
-    int pro_stock[MAX_PRODUCTS] = {0};
+    product products[MAX_PRODUCTS];
     int productCount = 0;
-    bool pro_active[MAX_PRODUCTS] = {false};
+
 
     // Moderators
 
     const int MAX_MODERATORS = 5;
-    bool moder_flag[MAX_MODERATORS] = {false};
-    string moder_first_name[MAX_MODERATORS] = {""};
-    string moder_last_name[MAX_MODERATORS] = {""};
-    string moder_username[MAX_MODERATORS] = {""};
-    string moder_password[MAX_MODERATORS] = {""};
-    string moder_CNIC[MAX_MODERATORS] = {""};
-    string moder_email[MAX_MODERATORS] = {""};
-    char moder_phone[MAX_MODERATORS][10] = {0};
-    int moder_salary[MAX_MODERATORS] = {0};
-    int moder_IDs[MAX_MODERATORS] = {0};
-    int moderID = 0;
+    moderator moderators[MAX_MODERATORS];
+    int moderIDcounter = 0;
 
     // Customer 
 
     const int MAX_CUSTOMERS = 100;
-    string cust_name[MAX_CUSTOMERS] = {""};
-    char cust_CNIC[MAX_CUSTOMERS][16] = {};
-    int cust_IDs[MAX_CUSTOMERS] = {0};
-    bool cust_flag[MAX_CUSTOMERS] = {false};
-    int custID = 0;
+    customer customers[MAX_CUSTOMERS];
+    int custIDcounter = 0;
 
     // Purchases
 
     const int MAX_PURCHASES = 100;
-    int purchases[MAX_PURCHASES] = {-5};
-    double purchaseBill[MAX_PURCHASES] = {-1}; // Index as purchaseID and Value CustomerID  
-    int purchaseID = 0;
+    purchase purchases[MAX_PURCHASES];
+    int purchaseCount = 0;
 
     // Items of Each Purchase
 
-    int item_purchases[MAX_PURCHASES * 10][4] = {-1,-2,-3,-4}; // purchaseID, item_id,quantity,price
+    item_purchase item_purchases[MAX_PURCHASES*10];
     int item_purCount = 0;
 
     /// Reviews
     
-    const int MAX_REVIEWS = MAX_PRODUCTS * 10; 
+    const int MAX_REVIEWS = MAX_PRODUCTS * 10;
 
-    string reviews[MAX_REVIEWS] = {""};
-    int reviewProID[MAX_REVIEWS] = {0};
-    int reviewCustID[MAX_REVIEWS] = {0};
-    int reviewRating[MAX_REVIEWS] = {0};
-    bool review_flag[MAX_REVIEWS] = {false};
-    int reviewType[MAX_REVIEWS] = {-1};
-    int reviewStatus[MAX_REVIEWS] = {-1};
-    int reviewModer[MAX_REVIEWS] = {-1};
+    review reviews[MAX_REVIEWS];
+    int reviewCount = 0;
 
+    // Reports
 
-    ////////////// Array Initializationa ///////////
-
-    
-    for(int i = 0; i < MAX_MODERATORS;i++) {
-
-        moder_flag[i] = false;
-        moder_first_name[i] = "";
-        moder_last_name[i] = "";
-        moder_username[i] = "";
-        moder_password[i] = "";
-        moder_CNIC[i] = "";
-        moder_email[i] = "";
-        moder_phone[i][0] = '\0';
-        moder_salary[i] = -1;
-        moder_IDs[i] = -1;
-
-    }
-
-    for(int i = 0;i < MAX_REVIEWS;i++) {
-        
-        reviews[i] = "";
-        reviewProID[i] = 0;
-        reviewCustID[i] = 0;
-        reviewRating[i] = 0;
-        review_flag[i] = false;
-        reviewType[i] = -1;
-        reviewStatus[i] = -1;
-        reviewModer[i] = -1;
-
-    }
-
-    for(int i = 0;i < MAX_PURCHASES * 10;i++) {
-
-        for(int j = 0;j < 4;j++)
-            item_purchases[i][j]  = -1;
-
-    }
-
-    for(int i = 0;i < MAX_PURCHASES;i++) {
-
-        purchases[i] = -1;
-        purchaseBill[i] = -1;  
-
-    }
-
-    for(int i = 0;i < MAX_CUSTOMERS;i++) {
-
-        cust_name[i] = "";
-        cust_CNIC[i][0] = '\0';
-        cust_IDs[i] = 0;
-        cust_flag[i] = false;
-
-    }
-
-    for(int i = 0;i < MAX_PRODUCTS;i++) {
-
-        pro_flag[i] = false;
-        pro_IDs[i] = 0;
-        products[i] = "";
-        pro_cprices[i] = 0.0;
-        pro_profit_percent[i] = 0;
-        pro_sell[i] = 0;
-        pro_stock[i] = 0;
-        productCount = 0;
-        pro_active[i] = false;
-
-    }
-
-    for(int i = 0;i < MAX_REPORTS;i++) {
-
-        reports[i] = "";
-        report_flag[i] = false;
-        report_moderator[i] = -1;
-        report_status[i] = -1;
-        reportSubject[i] = "";
-
-    }
+    const int MAX_REPORTS = 50;
+    report reports[MAX_REPORTS];
 
     ////////////////////// Load Data ////////////////////////
 
 
-    loadData(pro_flag,pro_IDs,products,pro_cprices,pro_profit_percent,pro_sell,pro_stock,pro_active,productCount,MAX_PRODUCTS,
-            moder_flag,moder_first_name,moder_last_name,moder_username,moder_password,moder_CNIC,moder_email,moder_phone,moder_salary,moder_IDs,moderID,MAX_MODERATORS,
-            cust_flag,cust_name,cust_CNIC,cust_IDs,custID,MAX_CUSTOMERS,
-            purchases,purchaseBill,purchaseID,
+    loadData(products,productCount,MAX_PRODUCTS,
+            moderators,MAX_MODERATORS,
+            customers,MAX_CUSTOMERS,custIDcounter,
+            purchases,purchaseCount,moderIDcounter,
             item_purchases,item_purCount,
-            review_flag,reviewType,reviewProID,reviewCustID,reviews,reviewStatus,reviewModer,reviewRating,MAX_REVIEWS,
-            reportSubject,reports,report_flag,report_status,report_moderator,MAX_REPORTS);
+            reviews,MAX_REVIEWS,reviewCount,
+            reports,MAX_REPORTS);
 
 
     // Variable Declarations
 
-    int admin = -1,moderator = -1,customer = -1;
+    int loggedinAdmin = -1,loggedinModerator = -1,loggedinCustomer = -1;
 
     int loggedInUser = -1;
 
@@ -518,20 +411,20 @@ int main() {
 
         case 0:
 
-            admin = getCredentials(admin_usernames, admin_passwords,1,"Admin");
+            loggedinAdmin = getCredentials(admin_usernames, admin_passwords,1,"Admin");
 
-            if(admin != -1)
+            if(loggedinAdmin != -1)
                 loggedInUser = 0;
 
             break;
 
         case 1:
 
-            moderator = getCredentials(moder_username, moder_password,MAX_MODERATORS,"Moderator");
+            loggedinModerator = getCredentials(moderators,MAX_MODERATORS);
 
-            if(moderator != -1) {
+            if(loggedinModerator != -1) {
 
-                moderator = moder_IDs[moderator];
+                loggedinModerator = moderators[loggedinModerator].ID;
 
                 loggedInUser = 1;
 
@@ -542,22 +435,22 @@ int main() {
         case 2:
 
             printBorder();
-            gotoxy(35,18);
+            cursorPosition(35,18);
 
             cout << "Are you New Customer : ";   
 
             if(yesnt())
-                addCustomer(cust_name,cust_CNIC,cust_IDs,cust_flag,custID,MAX_CUSTOMERS);
+                addCustomer(customers,custIDcounter,MAX_CUSTOMERS);
 
-            customer = loginCustomer(cust_CNIC,cust_IDs,cust_name,cust_flag,MAX_CUSTOMERS);
+            loggedinCustomer = loginCustomer(customers,MAX_CUSTOMERS);
 
-            if(customer != -1)
+            if(loggedinCustomer != -1)
                 loggedInUser = 2;
 
             break;
         case 3:
 
-            gotoxy(45,36);
+            cursorPosition(45,36);
 
             setcolor(3);
             cout << "Thanks For Using System." << endl;
@@ -590,7 +483,7 @@ int main() {
                             switch(nes1) {
                                 case 0:
                                     
-                                    addProduct(products,pro_cprices,pro_profit_percent,pro_IDs,pro_stock,pro_active,pro_flag,MAX_PRODUCTS,productCount);
+                                    addProduct(products,productCount,MAX_PRODUCTS);
                                     cout << "\n\t\t\t\t   ";
                                     hold();
 
@@ -599,7 +492,7 @@ int main() {
 
                                     while(true) {
 
-                                    showProductsAdmin(products,pro_cprices,pro_profit_percent,pro_active,pro_IDs,pro_flag,MAX_PRODUCTS);
+                                    showProductsAdmin(products,MAX_PRODUCTS);
                                     cout << endl << endl << endl << "\t\t";
                                     cout << "Do you want to update Price: ";
                                     if(yesnt()) {
@@ -607,7 +500,7 @@ int main() {
                                         cout << "\n\n\t\t";
 
                                         nes2 = intValidation("Product ID to Update","PR",1,productCount);
-                                        updatePrice(products,pro_IDs,pro_cprices,pro_profit_percent,pro_flag,nes2,MAX_PRODUCTS);
+                                        updatePrice(products,nes2,MAX_PRODUCTS);
 
                                     } else break;
 
@@ -616,14 +509,14 @@ int main() {
                                 break;
                                 case 2:
 
-                                    showProductsAdmin(products,pro_cprices,pro_profit_percent,pro_active,pro_IDs,pro_flag,MAX_PRODUCTS);
+                                    showProductsAdmin(products,MAX_PRODUCTS);
                                     cout << "\n\n\t\t";
                                     hold();
 
                                 break;
                                 case 3:
                                     flag = false,
-                                    showStock(products,pro_flag,pro_IDs,pro_stock,MAX_PRODUCTS,flag);
+                                    showStock(products,MAX_PRODUCTS,flag);
                                     cout << "\n\n\t\t";
                                     hold();
 
@@ -634,7 +527,7 @@ int main() {
 
                                         flag = false;
 
-                                        showPrices(products,pro_cprices,pro_profit_percent,pro_stock,pro_active,pro_IDs,pro_flag,MAX_PRODUCTS,flag);
+                                        showPrices(products,MAX_PRODUCTS,flag);
                                         if(!flag) {
                                             setcolor(14);
                                             cout << "\n\n\t\t\t\tNo Product Found\n\n\t\t";
@@ -650,7 +543,7 @@ int main() {
                                             cout << endl << endl << endl << "\t\t";
                                             nes1 = intValidation("Product ID to disable","PR",1,productCount);
 
-                                            disableProduct(pro_IDs,pro_active,pro_flag,nes1,MAX_PRODUCTS);
+                                            disableProduct(products,nes1,MAX_PRODUCTS);
                                             cout << "\n\t\t";                     
                                             hold();
                                         
@@ -664,7 +557,7 @@ int main() {
 
                                         flag = false;
 
-                                        showDisabledProducts(products,pro_cprices,pro_profit_percent,pro_stock,pro_active,pro_IDs,pro_flag,MAX_PRODUCTS,flag);
+                                        showDisabledProducts(products,MAX_PRODUCTS,flag);
                                         if(!flag) {
                                             setcolor(14);
                                             cout << "\n\n\t\t\t\tNo Disabled Product Found\n\n\t\t";
@@ -678,7 +571,7 @@ int main() {
                                             cout << endl << endl << endl << "\t\t";
                                             nes1 = intValidation("Product ID to Enable","PR",1,productCount);
 
-                                            enableProduct(pro_IDs,pro_active,pro_flag,nes1,MAX_PRODUCTS);
+                                            enableProduct(products,nes1,MAX_PRODUCTS);
                                             cout << "\n\t\t";                     
                                             hold();
                                         
@@ -704,7 +597,8 @@ int main() {
 
                                     flag = true;
 
-                                    showStock(products,pro_flag,pro_IDs,pro_stock,MAX_PRODUCTS,flag);
+                                    showStock(products,MAX_PRODUCTS,flag);                                        
+
                                     cout << "\n\n\t\t";
                                     hold();
 
@@ -715,11 +609,11 @@ int main() {
 
                                     while(true) {
 
-                                        showStock(products,pro_flag,pro_IDs,pro_stock,MAX_PRODUCTS,flag);
+                                        showStock(products,MAX_PRODUCTS,flag);                                        
                                         cout << "\n\n\t\tDo you want to edit stock : ";
                                         if(yesnt()) {
 
-                                            editStock(products,pro_IDs,pro_stock,pro_flag,productCount,MAX_PRODUCTS);
+                                            editStock(products,productCount);
 
                                         } else break;
                                     }
@@ -729,7 +623,7 @@ int main() {
 
                                     flag = false;
 
-                                    outOfStock(products,pro_flag,pro_IDs,pro_stock,MAX_PRODUCTS,flag);
+                                    outOfStock(products,productCount,flag);
                                     if(!flag) {
                                         setcolor(14);
                                         cout << "\n\n\t\t\tNothing is Out Of Stock Dont Worry";
@@ -756,13 +650,13 @@ int main() {
                             switch(nes1) {
                                 case 0:
 
-                                    printSortedItems(products,pro_IDs,pro_sell,productCount,'d');
+                                    printSortedItems(products,productCount,'d');
 
 
                                 break;
                                 case 1:
 
-                                    printSortedItems(products,pro_IDs,pro_sell,productCount,'a');
+                                    printSortedItems(products,productCount,'a');
     
                                 break;
                             }
@@ -784,14 +678,14 @@ int main() {
 
                                     while(true) {
                                         flag = false;
-                                        showmoderators(moder_first_name,moder_username,moder_password,moder_IDs,moder_flag,MAX_MODERATORS,flag);
+                                        showmoderators(moderators,MAX_MODERATORS,flag);
                                          if(flag) {
 
                                             cout << "\n\n\t\tDo You Want to See Full Profile of Moderator: ";
                                             if(yesnt()) {
                                                 cout << "\n\n\t\t";
-                                                nes1 = intValidation("Moderator ID","",1,moderID);
-                                                showmoderatorProfile(moder_first_name,moder_last_name,moder_username,moder_password,moder_CNIC,moder_email,moder_phone,moder_salary,moder_IDs,moder_flag,nes1,MAX_MODERATORS);
+                                                nes1 = intValidation("Moderator ID","",1,loggedinModerator);
+                                                showmoderatorProfile(moderators,nes1,MAX_MODERATORS);
 
                                                 cout << "\n\n\t\t";
                                                 hold();
@@ -809,19 +703,19 @@ int main() {
                                 break;
                                 case 1:
 
-                                    addmoderator(moder_first_name,moder_last_name,moder_username,moder_password,moder_CNIC,moder_email,moder_phone,moder_salary,moder_IDs,moder_flag,moderID,MAX_MODERATORS);
+                                    addmoderator(moderators,loggedinModerator,MAX_MODERATORS);
 
                                 break;
                                 case 2:
                                     flag = false;
-                                    showmoderators(moder_first_name,moder_username,moder_password,moder_IDs,moder_flag,MAX_MODERATORS,flag);
+                                    showmoderators(moderators,MAX_MODERATORS,flag);
                                      if(flag) {
 
                                         cout << "\n\n\t\tDo You Want to edit Moderator: ";
                                         if(yesnt()) {
                                             cout << "\n\n\t\t";
                                             tem = intValidation("Moderator ID","",1,MAX_MODERATORS);
-                                            updatemoderator(moder_first_name,moder_last_name,moder_username,moder_password,moder_CNIC,moder_email,moder_phone,moder_salary,moder_IDs,moder_flag,tem,MAX_MODERATORS);
+                                            updatemoderator(moderators,tem,MAX_MODERATORS);
                                        
                                         }
                                     } else {
@@ -832,7 +726,7 @@ int main() {
                                 break;
                                 case 3:
                                     flag = false;
-                                    showmoderators(moder_first_name,moder_username,moder_password,moder_IDs,moder_flag,MAX_MODERATORS,flag);
+                                    showmoderators(moderators,MAX_MODERATORS,flag);
                                     if(flag) {
 
                                         cout << "\n\n\t\tDo You Want to Delete Moderator: ";
@@ -840,7 +734,7 @@ int main() {
                                             
                                             cout << "\n\n\t\t";
                                             tem = intValidation("Moderator ID","",1,MAX_MODERATORS);
-                                            deletemoderator(moder_flag,moder_IDs,tem,MAX_MODERATORS);
+                                            deletemoderator(moderators,tem,MAX_MODERATORS);
 
                                         }
                                     }
@@ -868,17 +762,17 @@ int main() {
                             switch(nes1) {
                                 case 0:
 
-                                    viewRequests(moder_first_name,moder_IDs,moder_flag,reportSubject,reports,report_moderator,report_flag,report_status,MAX_MODERATORS,MAX_REPORTS,-1);
+                                    viewRequests(moderators,reports,MAX_MODERATORS,MAX_REPORTS,-1);
 
                                 break;
                                 case 1:
 
-                                    viewRequests(moder_first_name,moder_IDs,moder_flag,reportSubject,reports,report_moderator,report_flag,report_status,MAX_MODERATORS,MAX_REPORTS,1);
+                                    viewRequests(moderators,reports,MAX_MODERATORS,MAX_REPORTS,1);
 
                                 break;
                                 case 2:
 
-                                    viewRequests(moder_first_name,moder_IDs,moder_flag,reportSubject,reports,report_moderator,report_flag,report_status,MAX_MODERATORS,MAX_REPORTS,2);
+                                    viewRequests(moderators,reports,MAX_MODERATORS,MAX_REPORTS,2);
                                 
                                 break;
                             }
@@ -903,42 +797,36 @@ int main() {
 
                     case 0:
                         flag = false;
-                        showPrices(products,pro_cprices,pro_profit_percent,pro_stock,pro_active,pro_IDs,pro_flag,MAX_PRODUCTS,flag);
+                        showPrices(products,MAX_PRODUCTS,flag);
                         cout << "\n\n\t\t";
                         hold();
                         break;
                     case 1:
                         flag = false;
-                        showStock(products,pro_flag,pro_IDs,pro_stock,MAX_PRODUCTS,flag);
+                        showStock(products,MAX_PRODUCTS,flag);
                         cout << "\n\n\t\t";
                         hold();
                         break;
                     case 2:
 
-                        while(true) {
+                        while(true) { // Review Menu
 
                             nes1 = navigateMenu(mReviewMenu,mReviewMenuSize);
 
                             switch(nes1) {
                                 case 0:
 
-                                    moderateReviews(moderator,review_flag,reviewCustID,reviewModer,reviewProID,reviewRating,reviews,reviewStatus,reviewType,
-                                                    cust_name,cust_flag,cust_IDs,MAX_CUSTOMERS,
-                                                    products,pro_IDs,pro_flag,MAX_PRODUCTS,MAX_REVIEWS,-1,true);
+                                    moderateReviews(reviews,customers,products,loggedinModerator,reviewCount,MAX_CUSTOMERS,MAX_PRODUCTS,-1,true);
 
                                 break;
                                 case 1:
                             
-                                    moderateReviews(moderator,review_flag,reviewCustID,reviewModer,reviewProID,reviewRating,reviews,reviewStatus,reviewType,
-                                                    cust_name,cust_flag,cust_IDs,MAX_CUSTOMERS,
-                                            products,pro_IDs,pro_flag,MAX_PRODUCTS,MAX_REVIEWS,1);
+                                    moderateReviews(reviews,customers,products,loggedinModerator,reviewCount,MAX_CUSTOMERS,MAX_PRODUCTS,1);
 
                                 break;
                                 case 2:
                                     
-                                    moderateReviews(moderator,review_flag,reviewCustID,reviewModer,reviewProID,reviewRating,reviews,reviewStatus,reviewType,
-                                                    cust_name,cust_flag,cust_IDs,MAX_CUSTOMERS,
-                                                    products,pro_IDs,pro_flag,MAX_PRODUCTS,MAX_REVIEWS,2);
+                                    moderateReviews(reviews,customers,products,loggedinModerator,reviewCount,MAX_CUSTOMERS,MAX_PRODUCTS,2);
 
                                 break;
                             }
@@ -952,13 +840,13 @@ int main() {
 
                     case 3:
 
-                        reportToAdmin(moderator,reportSubject,reports,report_flag,report_status,report_moderator,MAX_REPORTS);
+                        reportToAdmin(loggedinModerator,reports,MAX_REPORTS);
 
                     break;
 
                     case 4:
 
-                        showmoderatorProfile(moder_first_name,moder_last_name,moder_username,moder_password,moder_CNIC,moder_email,moder_phone,moder_salary,moder_IDs,moder_flag,moderator,MAX_MODERATORS);
+                        showmoderatorProfile(moderators,loggedinModerator,MAX_MODERATORS);
 
                         cout << "\n\n\t\t";
                         hold();
@@ -980,18 +868,18 @@ int main() {
                 switch(customer_choice) {
                     case 0:
                         flag = false;
-                        showPrices(products,pro_cprices,pro_profit_percent,pro_stock,pro_active,pro_IDs,pro_flag,MAX_PRODUCTS,flag);
+                        showPrices(products,MAX_PRODUCTS,flag);
                         cout << "\n\t\t";
                         hold();
                     break;
                     case 1:
                         flag = false;
-                        showPrices(products,pro_cprices,pro_profit_percent,pro_stock,pro_active,pro_IDs,pro_flag,MAX_PRODUCTS,flag);
+                        showPrices(products,MAX_PRODUCTS,flag);
                         if(flag) {
 
                         cout << "\n\t\tDo you want to Buy Items: ";
                         if(yesnt())
-                            buyItems(products,customer,pro_IDs,pro_cprices,pro_profit_percent,pro_sell,pro_stock,pro_active,purchases,purchaseBill,item_purchases,pro_flag,MAX_PRODUCTS,MAX_PURCHASES,purchaseID,item_purCount,productCount);
+                            buyItems(products,purchases,item_purchases,loggedinCustomer,MAX_PRODUCTS,MAX_PURCHASES,purchaseCount,item_purCount,productCount);
 
                         } else {
                             setcolor(14);
@@ -1003,7 +891,7 @@ int main() {
 
                         break;
                     case 2:
-                        showHistory(purchases,purchaseBill,item_purchases,customer,products,pro_flag,pro_IDs,MAX_PRODUCTS,MAX_PURCHASES,item_purCount);
+                        showHistory(purchases,item_purchases,loggedinCustomer,products,MAX_PRODUCTS,MAX_PURCHASES,item_purCount);
                         hold();
                         break;
                     case 3:
@@ -1014,11 +902,11 @@ int main() {
 
                             nes2 = 0,
 
-                            printBuyedItems(products,pro_flag,customer,pro_IDs,purchases,item_purchases,purchaseID,item_purCount,MAX_PRODUCTS,nes2);
+                            printBuyedItems(purchases,products,loggedinCustomer,item_purchases,purchaseCount,item_purCount,productCount,nes2);
 
                             if(nes2 != 0) {
 
-                                proReview(customer,purchases,item_purchases,purchaseID,item_purCount,productCount,MAX_PRODUCTS,reviews,reviewProID,reviewCustID,reviewRating,reviewModer,reviewStatus,review_flag,reviewType,MAX_REVIEWS);
+                                proReview(loggedinCustomer,purchases,item_purchases,reviews,purchaseCount,item_purCount,productCount,MAX_PRODUCTS,MAX_REVIEWS);
                             
                             } else  {
                                 setcolor(14);
@@ -1029,7 +917,7 @@ int main() {
 
                         }
                         else if(nes1 == 1){
-                            generalReview(customer,reviews,reviewProID,reviewCustID,reviewRating,reviewModer,reviewStatus,review_flag,reviewType,MAX_REVIEWS);
+                            generalReview(loggedinCustomer,reviews,reviewCount,MAX_REVIEWS);
                         }
                         break;
                     case 4:
@@ -1041,7 +929,7 @@ int main() {
                                 case 0:
 
                                 
-                                viewMyReviews(customer,reviews,reviewRating,reviewType,reviewProID,reviewCustID,products,pro_IDs,reviewStatus,pro_flag,review_flag,MAX_PRODUCTS,MAX_REVIEWS);
+                                viewMyReviews(loggedinCustomer,reviews,products,productCount,reviewCount);
                                 cout << "\n\t\t";
                                 hold();
 
@@ -1050,7 +938,7 @@ int main() {
 
                                 system("cls");
                                 print_logo();
-                                viewProductReviews(customer,reviews,reviewRating,reviewType,reviewProID,reviewCustID,products,pro_IDs,reviewStatus,pro_flag,review_flag,MAX_PRODUCTS,MAX_REVIEWS);
+                                viewProductReviews(loggedinCustomer,reviews,products,productCount,reviewCount);
                                 hold();
 
                                 break;
@@ -1058,7 +946,7 @@ int main() {
 
                                 system("cls");
                                 print_logo();
-                                viewGeneralReviews(customer,reviews,reviewRating,reviewType,reviewProID,reviewCustID,products,pro_IDs,reviewStatus,pro_flag,review_flag,MAX_PRODUCTS,MAX_REVIEWS);
+                                viewGeneralReviews(loggedinCustomer,reviews,reviewCount);
                                 hold();
 
 
@@ -1090,13 +978,13 @@ int main() {
 
     //////////////////// Store Data ////////////////////
 
-    storeData(pro_flag,pro_IDs,products,pro_cprices,pro_profit_percent,pro_sell,pro_stock,pro_active,productCount,MAX_PRODUCTS,
-             moder_flag,moder_first_name,moder_last_name,moder_username,moder_password,moder_CNIC,moder_email,moder_phone,moder_salary,moder_IDs,moderID,MAX_MODERATORS,
-             cust_flag,cust_name,cust_CNIC,cust_IDs,custID,MAX_CUSTOMERS,
-             purchases,purchaseBill,purchaseID,
-             item_purchases,item_purCount,
-             review_flag,reviewType,reviewProID,reviewCustID,reviews,reviewStatus,reviewModer,reviewRating,MAX_REVIEWS,
-             reportSubject,reports,report_flag,report_status,report_moderator,MAX_REPORTS);
+    storeData(products,productCount,MAX_PRODUCTS,
+              moderators,MAX_MODERATORS,
+              customers,MAX_CUSTOMERS,custIDcounter,
+              purchases,purchaseCount,moderIDcounter,
+              item_purchases,item_purCount,
+              reviews,MAX_REVIEWS,reviewCount,
+              reports,MAX_REPORTS);
 
     return 0;
 }
@@ -1117,7 +1005,7 @@ void printBorder() {
     // □ ■ █
 
     for(int i = 0; i < rows; i++){
-        gotoxy(x,y);
+        cursorPosition(x,y);
         cout << "██";
         for(int j = 0; j < columns; j++) {
 
@@ -1132,7 +1020,7 @@ void printBorder() {
     }
 }
 
-void printSortedItems(string products[],int pro_IDs[],unsigned long int pro_sell[],int productCount,char order) {
+void printSortedItems(product products[],int productCount,char order) {
 
     system("cls");
     print_logo();
@@ -1144,7 +1032,7 @@ void printSortedItems(string products[],int pro_IDs[],unsigned long int pro_sell
 
     unsigned long int* tem_sell = new unsigned long int[productCount]; // Array to Copy Stock Array
 
-    copyULIntArray(tem_sell,pro_sell,productCount); // Copy Stock Array so Orignal Data Dont get Modified
+    copyULIntArray(tem_sell,products,productCount); // Copy Stock Array so Orignal Data Dont get Modified
 
     sortProducts(indexes,tem_sell,productCount,order); // Sort using Copied Array
 
@@ -1157,9 +1045,9 @@ void printSortedItems(string products[],int pro_IDs[],unsigned long int pro_sell
     for(int i = 0;i < 10;i++) {
         if(i < productCount) {
 
-            cout << "\t\t\t\t┃" << centerString(makeIDString("PR",pro_IDs[indexes[i]]),10);
-            cout << "┃" << centerString(products[indexes[i]],20);
-            cout << "┃" << centerString(intToString(pro_sell[indexes[i]]),10) << "┃" << endl;
+            cout << "\t\t\t\t┃" << centerString(makeIDString("PR",products[indexes[i]].ID),10);
+            cout << "┃" << centerString(products[indexes[i]].name,20);
+            cout << "┃" << centerString(intToString(products[indexes[i]].sell),10) << "┃" << endl;
 
         }
     }
@@ -1190,7 +1078,7 @@ void deleteDisclaimer(string entity) {
 
 }
 
-void viewRequests(string moder_first_name[],int moder_IDs[],bool moder_flag[],string reportSubject[],string reports[],int report_moderator[],bool report_flag[],int report_status[],int MAX_MODERATORS,int MAX_REPORTS,int status) {
+void viewRequests(moderator moderators[],report reports[],int MAX_MODERATORS,int MAX_REPORTS,int status) {
 
     system("cls");
     print_logo();
@@ -1205,10 +1093,10 @@ void viewRequests(string moder_first_name[],int moder_IDs[],bool moder_flag[],st
     int counter  = 0;
 
     for(int i = 0;i < MAX_REPORTS;i++) {
-        if(report_flag[i] && report_status[i] == status) {
+        if(reports[i].flag && reports[i].status == status) {
 
-            int index = returnIndexByID(moder_IDs,moder_flag,report_moderator[i],MAX_MODERATORS);
-            cout << "\t\t┃" << setw(5) << centerString(pad(++counter,2),5) << "┃" << setw(17) << centerString(moder_first_name[index],17) << "┃ " << setw(50) << reportSubject[i] << "┃" << endl;
+            int index = returnIndexByID(moderators,reports[i].moderatorID,MAX_MODERATORS);
+            cout << "\t\t┃" << setw(5) << centerString(pad(++counter,2),5) << "┃" << setw(17) << centerString(moderators[index].first_name,17) << "┃ " << setw(50) << reports[i].subject << "┃" << endl;
         }
     }
 
@@ -1225,7 +1113,7 @@ void viewRequests(string moder_first_name[],int moder_IDs[],bool moder_flag[],st
 
             cout << "\n\n\t\t";
             int n = intValidation("Review Number to View Request","",1,counter);
-            viewRequest(moder_first_name,moder_IDs,moder_flag,reportSubject,reports,report_moderator,report_flag,report_status,MAX_MODERATORS,MAX_REPORTS,status,n);
+            viewRequest(moderators,reports,MAX_MODERATORS,MAX_REPORTS,status,n);
                                             
         }
     }    
@@ -1233,7 +1121,7 @@ void viewRequests(string moder_first_name[],int moder_IDs[],bool moder_flag[],st
         hold();
 }
 
-void viewRequest(string moder_first_name[],int moder_IDs[],bool moder_flag[],string reportSubject[],string reports[],int report_moderator[],bool report_flag[],int report_status[],int MAX_MODERATORS,int MAX_REPORTS,int status,int n) {
+void viewRequest(moderator moderators[],report reports[],int MAX_MODERATORS,int MAX_REPORTS,int status,int n) {
     
     system("cls");
     print_logo();
@@ -1244,7 +1132,7 @@ void viewRequest(string moder_first_name[],int moder_IDs[],bool moder_flag[],str
 
     for(int i = 0;i < MAX_REPORTS;i++) {
 
-        if(report_flag[i] && report_status[i] == status)
+        if(reports[i].flag && reports[i].status == status)
             counter++;
         if(counter == n) {
             index = i;
@@ -1257,13 +1145,13 @@ void viewRequest(string moder_first_name[],int moder_IDs[],bool moder_flag[],str
     cout << "\n\n\t\tSubject : " ;
     setcolor(7);
 
-    cout << reportSubject[index];
+    cout << reports[index].subject;
 
     setcolor(14);
-    cout << "\n\n\n\t\t" << reports[index];
+    cout << "\n\n\n\t\t" << reports[index].body;
     setcolor(7);
 
-    if(report_status[index] == -1) { // if request is pending
+    if(reports[index].status == -1) { // if request is pending
         
         cout << "\n\n\t\tDo You Want to Approve/Disapprove Request :";
         if(yesnt()) {
@@ -1272,9 +1160,9 @@ void viewRequest(string moder_first_name[],int moder_IDs[],bool moder_flag[],str
             int option = intValidation("","",1,2);
 
             if(option == 1)
-                report_status[index] = 1; // Approve
+                reports[index].status = 1; // Approve
             else
-                report_status[index] = 2; // Disapprove
+                reports[index].status = 2; // Disapprove
         }
 
     }
@@ -1293,7 +1181,7 @@ void printHeader(string str) {
 
 }
 
-void printBuyedItems(string products[],bool pro_flag[],int custID,int pro_IDs[],int purchases[],int item_purchases[][4],int purchaseID,int item_purCount, int MAX_PRODUCTS,int& distinctCounter) {
+void printBuyedItems(purchase purchases[],product products[],int custID,item_purchase item_purchases[],int purchaseCount,int item_purCount, int productCount,int& distinctCounter) {
 
     system("cls");
     print_logo();
@@ -1304,18 +1192,18 @@ void printBuyedItems(string products[],bool pro_flag[],int custID,int pro_IDs[],
     setcolor(7);
 
     // get array of buyed products IDs
-    int* disproducts = returnBuyedProducts(custID,purchases,item_purchases,purchaseID,item_purCount,MAX_PRODUCTS,distinctCounter);
+    int* disproducts = returnBuyedProducts(custID,purchases,item_purchases,purchaseCount,item_purCount,productCount,distinctCounter);
 
     setcolor(14);
     for(int i = 0;i < distinctCounter; i++) {
-        for(int j = 0;j < MAX_PRODUCTS;j++) {
+        for(int j = 0;j < productCount;j++) {
 
-            if(pro_IDs[j] == disproducts[i]) {
+            if(products[j].ID == disproducts[i]) {
 
-                int index = returnIndexByID(pro_IDs,pro_flag,disproducts[i],MAX_PRODUCTS); // get index of product by ID
+                int index = returnIndexByID(products,disproducts[i],productCount); // get index of product by ID
 
                 cout << "\t\tPoduct ID : " << makeIDString("PR",disproducts[i]);
-                cout << "\t\tPoduct Name : " << products[index] << "\t\t";
+                cout << "\t\tPoduct Name : " << products[index].name << "\t\t";
                 cout << endl;
                 break;
             }
@@ -1326,22 +1214,16 @@ void printBuyedItems(string products[],bool pro_flag[],int custID,int pro_IDs[],
 
 }
 
-void viewMyReviews(int custID, string reviews[], int reviewRating[], int reviewType[], 
-                   int reviewProID[], int reviewCustID[],string products[],int pro_IDs[],int reviewStatus[], bool pro_flag[], bool review_flag[], 
-                   int MAX_PRODUCTS, int MAX_REVIEWS) {
+void viewMyReviews(int custID,review reviews[],product products[],int productCount,int reviewCount) {
     system("cls");
     print_logo();
 
-    viewProductReviews(custID,reviews,reviewRating,reviewType,reviewProID,reviewCustID,products,pro_IDs,reviewStatus,pro_flag,review_flag,MAX_PRODUCTS,MAX_REVIEWS);
-    viewGeneralReviews(custID,reviews,reviewRating,reviewType,reviewProID,reviewCustID,products,pro_IDs,reviewStatus,pro_flag,review_flag,MAX_PRODUCTS,MAX_REVIEWS);
+    viewProductReviews(custID,reviews,products,productCount,reviewCount);
+    viewGeneralReviews(custID,reviews,reviewCount);
     
-
-
 }
 
-void viewProductReviews(int custID, string reviews[], int reviewRating[], int reviewType[], 
-                   int reviewProID[], int reviewCustID[],string products[],int pro_IDs[],int reviewStatus[], bool pro_flag[], bool review_flag[], 
-                   int MAX_PRODUCTS, int MAX_REVIEWS) {
+void viewProductReviews(int custID,review reviews[],product products[],int productCount,int reviewCount) {
 
     printHeader("Product Reviews");
 
@@ -1350,7 +1232,7 @@ void viewProductReviews(int custID, string reviews[], int reviewRating[], int re
 
     // SELECT * FROM reviews WHERE reviews.custID = custID GROUP BY reviews.proID;
     
-    int* disproducts = returnReviewedProducts(custID,reviewProID,reviewCustID,reviewType,review_flag,MAX_PRODUCTS,MAX_REVIEWS,distinctCounter);
+    int* disproducts = returnReviewedProducts(custID,reviews,reviewCount,productCount,distinctCounter);
     
     if(distinctCounter == 0) {
         setcolor(14);
@@ -1362,9 +1244,9 @@ void viewProductReviews(int custID, string reviews[], int reviewRating[], int re
 
     for (int i = 0; i < distinctCounter; i++) {
 
-            int index = returnIndexByID(pro_IDs,pro_flag,disproducts[i],MAX_PRODUCTS);
+            int index = returnIndexByID(products,disproducts[i],productCount);
             cout << "\t\t┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓\n";
-            cout << "\t\t┃" << centerString(("Product " + intToString(i+1) + " : " + products[index]),77) << "┃\n";
+            cout << "\t\t┃" << centerString(("Product " + intToString(i+1) + " : " + products[index].name),77) << "┃\n";
 
             cout << "\t\t┣━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┫\n";
 
@@ -1372,31 +1254,30 @@ void viewProductReviews(int custID, string reviews[], int reviewRating[], int re
             double avg = 0;
             int total = 0;
 
-        for (int j = 0; j < MAX_REVIEWS; j++) {
-            if (!review_flag[j]) break;
+        for (int j = 0; j < reviewCount; j++) {
 
-            if (reviewType[j] != 2) continue; // Only product reviews
+            if (reviews[j].type != 2) continue; // Only product reviews
 
-            if (reviewProID[j] == disproducts[i] && reviewCustID[j] == custID) {
+            if (reviews[j].productID == disproducts[i] && reviews[j].customerID == custID) {
 
-                avg += reviewRating[j];
+                avg += reviews[j].rating;
                 total++;
 
-                string rating = intToString(reviewRating[j]) + "/5";
-                cout << "\t\t┃" << centerString("Review:",10) << setw(67) << reviews[j] << "┃\n";
+                string rating = intToString(reviews[j].rating) + "/5";
+                cout << "\t\t┃" << centerString("Review:",10) << setw(67) << reviews[j].review << "┃\n";
 
 
                 cout << "\t\t┃" << centerString("Status:",10);
 
-                if(reviewStatus[j] == -1)
+                if(reviews[j].status == -1)
                     setcolor(14);
-                else if(reviewStatus[j] == 1)
+                else if(reviews[j].status == 1)
                     setcolor(10);
-                else if(reviewStatus[j] == 2)
+                else if(reviews[j].status == 2)
                     setcolor(12);
             
             
-                cout << setw(67) << giveReviewStatus(reviewStatus[j]);
+                cout << setw(67) << giveReviewStatus(reviews[j].status);
                 setcolor(7);
                 cout << "┃\n";
 
@@ -1414,9 +1295,7 @@ void viewProductReviews(int custID, string reviews[], int reviewRating[], int re
 }
 
 
-void viewGeneralReviews(int custID, string reviews[], int reviewRating[], int reviewType[], 
-                   int reviewProID[], int reviewCustID[],string products[],int pro_IDs[],int reviewStatus[], bool pro_flag[], bool review_flag[], 
-                   int MAX_PRODUCTS, int MAX_REVIEWS) {
+void viewGeneralReviews(int custID,review reviews[],int reviewCount) {
 
         printHeader("General Reviews");
 
@@ -1424,32 +1303,31 @@ void viewGeneralReviews(int custID, string reviews[], int reviewRating[], int re
 
         int counter = 0;
 
-        for (int j = 0; j < MAX_REVIEWS; j++) {
-        if (!review_flag[j]) break;
+        for (int j = 0; j < reviewCount; j++) {
 
-        if (reviewType[j] != 1) continue; // Only General reviews
+        if (reviews[j].type != 1) continue; // Only General reviews
 
-        if (reviewCustID[j] == custID) {
+        if (reviews[j].customerID == custID) {
 
-            string rating = intToString(reviewRating[j]) + "/5";
+            string rating = intToString(reviews[j].rating) + "/5";
 
             cout << "\t\t┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓\n";
             cout << "\t\t┃" << centerString(("Review " + intToString(++counter)),77) << "┃\n";
 
             cout << "\t\t┣━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┫\n";
 
-            cout << "\t\t┃" << centerString("Review:",10) << setw(67) << reviews[j] << "┃\n";
+            cout << "\t\t┃" << centerString("Review:",10) << setw(67) << reviews[j].review << "┃\n";
             cout << "\t\t┃" << centerString("Status:",10);
 
-            if(reviewStatus[j] == -1)
+            if(reviews[j].status == -1)
                 setcolor(14);
-            else if(reviewStatus[j] == 1)
+            else if(reviews[j].status == 1)
                 setcolor(10);
-            else if(reviewStatus[j] == 2)
+            else if(reviews[j].status == 2)
                 setcolor(12);
             
             
-            cout << setw(67) << giveReviewStatus(reviewStatus[j]);
+            cout << setw(67) << giveReviewStatus(reviews[j].status);
             setcolor(7);
             cout << "┃\n";
 
@@ -1468,7 +1346,7 @@ void viewGeneralReviews(int custID, string reviews[], int reviewRating[], int re
 }
 
 
-void showHistory(int purchases[],double purchaseBill[],int item_purchases[][4],int custID,string products[],bool pro_flag[],int pro_IDs[],int MAX_PRODUCTS,int MAX_PURCHASES,int& item_purCount) {
+void showHistory(purchase purchases[],item_purchase item_purchases[],int custID,product products[],int MAX_PRODUCTS,int MAX_PURCHASES,int& item_purCount) {
 
     system("cls");
     print_logo();
@@ -1482,7 +1360,7 @@ void showHistory(int purchases[],double purchaseBill[],int item_purchases[][4],i
 
     for(int i = 0; i < MAX_PURCHASES;i++) {
 
-        if(purchases[i] == custID) { // Check CustomerID in Purchases
+        if(purchases[i].customerID == custID) { // Check CustomerID in Purchases
             if(noPurchase)
                 cout << "\t\t\t┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓" << endl; // 66
             else
@@ -1490,7 +1368,7 @@ void showHistory(int purchases[],double purchaseBill[],int item_purchases[][4],i
 
             noPurchase = false;
 
-            string purchaseHeader = "Purchase " + pad(++p_count,2) + " - Bill : " + doubleToString(purchaseBill[i],2);
+            string purchaseHeader = "Purchase " + pad(++p_count,2) + " - Bill : " + doubleToString(purchases[i].bill,2);
 
             cout << "\t\t\t┃";
             setcolor(3);
@@ -1506,12 +1384,12 @@ void showHistory(int purchases[],double purchaseBill[],int item_purchases[][4],i
 
             for(int j = 0;j < item_purCount;j++) {
 
-                int proIndex = returnIndexByID(pro_IDs,pro_flag,item_purchases[j][1],MAX_PRODUCTS);
+                int proIndex = returnIndexByID(products,item_purchases[j].productID,MAX_PRODUCTS);
 
 
-                if(item_purchases[j][0] == i) { //check purchase ID
+                if(item_purchases[j].purchaseID == i) { //check purchase ID
 
-                    cout << "\t\t\t┃ " << setw(14) << products[proIndex] << "┃ " << setw(14) << item_purchases[j][2] << "┃ " << setw(14) << item_purchases[j][3] << "┃" << endl; // 66
+                    cout << "\t\t\t┃ " << setw(14) << products[proIndex].name << "┃ " << setw(14) << item_purchases[j].quantity << "┃ " << setw(14) << item_purchases[j].bill << "┃" << endl; // 66
                     
                 }
             }
@@ -1529,9 +1407,7 @@ void showHistory(int purchases[],double purchaseBill[],int item_purchases[][4],i
 
 }
 
-void showmoderatorProfile(string moder_first_name[], string moder_last_name[], string moder_username[], string moder_password[], 
-                        string moder_CNIC[], string moder_email[], char moder_phone[][10], int moder_salary[], 
-                        int moder_IDs[], bool moder_flag[], int moderID, int MAX_MODERATORS) {
+void showmoderatorProfile(moderator moderators[],int moderID,int MAX_MODERATORS) {
 
     system("cls");
     print_logo();
@@ -1540,47 +1416,47 @@ void showmoderatorProfile(string moder_first_name[], string moder_last_name[], s
     cout << left;
 
     for (int i = 0; i < MAX_MODERATORS; i++) {
-        if (moder_flag[i] && moder_IDs[i] == moderID) {  // Check if the moderator record is valid and matches the given ID
+        if (moderators[i].flag && moderators[i].ID == moderID) {  // Check if the moderator record is valid and matches the given ID
 
-            printHeader(moder_first_name[i] + " " + moder_last_name[i]);
+            printHeader(moderators[i].first_name + " " + moderators[i].last_name);
 
             cout << "\t\t\t┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓" << endl;
             cout << "\t\t\t┃           ---- Moderator Profile ----           ┃" << endl;
             cout << "\t\t\t┣━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┫" << endl;
 
-            cout << "\t\t\t┃" << setw(19) << " Moderator ID" << "┃" << " " << setw(28) << moder_IDs[i] << "┃" << endl;
+            cout << "\t\t\t┃" << setw(19) << " Moderator ID" << "┃" << " " << setw(28) << moderators[i].ID << "┃" << endl;
 
             cout << "\t\t\t┣━━━━━━━━━━━━━━━━━━━╋━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┫" << endl;
 
-            cout << "\t\t\t┃" << setw(19) << " First Name" << "┃" << " " << setw(28) << moder_first_name[i] << "┃" << endl;
+            cout << "\t\t\t┃" << setw(19) << " First Name" << "┃" << " " << setw(28) << moderators[i].first_name << "┃" << endl;
             
             cout << "\t\t\t┣━━━━━━━━━━━━━━━━━━━╋━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┫" << endl;
             
-            cout << "\t\t\t┃" << setw(19) << " Last Name" << "┃" << " " << setw(28) << moder_last_name[i] << "┃" << endl;
+            cout << "\t\t\t┃" << setw(19) << " Last Name" << "┃" << " " << setw(28) << moderators[i].last_name << "┃" << endl;
             
             cout << "\t\t\t┣━━━━━━━━━━━━━━━━━━━╋━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┫" << endl;
             
-            cout << "\t\t\t┃" << setw(19) << " Username" << "┃" << " " << setw(28) << moder_username[i] << "┃" << endl;
+            cout << "\t\t\t┃" << setw(19) << " Username" << "┃" << " " << setw(28) << moderators[i].username << "┃" << endl;
             
             cout << "\t\t\t┣━━━━━━━━━━━━━━━━━━━╋━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┫" << endl;
             
-            cout << "\t\t\t┃" << setw(19) << " Password" << "┃" << " " << setw(28) << moder_password[i] << "┃" << endl;
+            cout << "\t\t\t┃" << setw(19) << " Password" << "┃" << " " << setw(28) << moderators[i].password << "┃" << endl;
             
             cout << "\t\t\t┣━━━━━━━━━━━━━━━━━━━╋━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┫" << endl;
             
-            cout << "\t\t\t┃" << setw(19) << " CNIC" << "┃" << " " << setw(28) << moder_CNIC[i] << "┃" << endl;
+            cout << "\t\t\t┃" << setw(19) << " CNIC" << "┃" << " " << setw(28) << moderators[i].CNIC << "┃" << endl;
             
             cout << "\t\t\t┣━━━━━━━━━━━━━━━━━━━╋━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┫" << endl;
             
-            cout << "\t\t\t┃" << setw(19) << " Email" << "┃" << " " << setw(28) << moder_email[i] << "┃" << endl;
+            cout << "\t\t\t┃" << setw(19) << " Email" << "┃" << " " << setw(28) << moderators[i].email << "┃" << endl;
             
             cout << "\t\t\t┣━━━━━━━━━━━━━━━━━━━╋━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┫" << endl;
             
-            cout << "\t\t\t┃" << setw(19) << " Phone" << "┃" << " " << "03" << moder_phone[i] << "                 ┃" << endl;
+            cout << "\t\t\t┃" << setw(19) << " Phone" << "┃" << " " << "03" << moderators[i].phone << "                 ┃" << endl;
             
             cout << "\t\t\t┣━━━━━━━━━━━━━━━━━━━╋━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┫" << endl;
             
-            cout << "\t\t\t┃" << setw(19) << " Salary" << "┃" << " " << setw(28) << postfixInt(moder_salary[i],"rupees")  << "┃" << endl;
+            cout << "\t\t\t┃" << setw(19) << " Salary" << "┃" << " " << setw(28) << postfixInt(moderators[i].salary,"rupees")  << "┃" << endl;
 
             cout << "\t\t\t┗━━━━━━━━━━━━━━━━━━━┻━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛" << endl;
 
@@ -1592,7 +1468,7 @@ void showmoderatorProfile(string moder_first_name[], string moder_last_name[], s
 }
 
 
-void showmoderators(string moder_first_name[],string moder_username[],string moder_password[],int moder_IDs[],bool moder_flag[],int MAX_MODERATORS,bool& found) {
+void showmoderators(moderator moderators[],int MAX_MODERATORS,bool& found) {
 
     system("cls");
     print_logo();
@@ -1607,15 +1483,15 @@ void showmoderators(string moder_first_name[],string moder_username[],string mod
 
 
     for(int i = 0; i < MAX_MODERATORS; i++) {
-        if(moder_flag[i]) {
+        if(moderators[i].flag) {
 
             found = true;
 
             cout << "\t\t\t┃";
-            cout << " " << setw(15) << moder_IDs[i] << "┃";
-            cout << " " << setw(14) << moder_first_name[i] << "┃";
-            cout << " " << setw(14) << moder_username[i] << "┃";
-            cout << " " << setw(14) << moder_password[i];
+            cout << " " << setw(15) << moderators[i].ID << "┃";
+            cout << " " << setw(14) << moderators[i].first_name << "┃";
+            cout << " " << setw(14) << moderators[i].username << "┃";
+            cout << " " << setw(14) << moderators[i].password;
             cout << "┃";
             cout << endl;
 
@@ -1630,7 +1506,7 @@ void showmoderators(string moder_first_name[],string moder_username[],string mod
 
 }
 
-void showStock(string products[],bool pro_flag[],int pro_IDs[],int pro_stock[],int MAX_PRODUCTS,bool& flag) {
+void showStock(product products[],int MAX_PRODUCTS,bool& flag) {
 
     system("cls");
     print_logo();
@@ -1644,21 +1520,21 @@ void showStock(string products[],bool pro_flag[],int pro_IDs[],int pro_stock[],i
 
 
     for(int i = 0; i < MAX_PRODUCTS; i ++) {
-        if(pro_flag[i]) {
+        if(products[i].flag) {
 
             flag = true;
 
             cout << "\t\t\t\t┃";
-            cout << " " << setw(14) << pro_IDs[i] << "┃";
-            cout << " " << setw(14) << products[i] << "┃";
+            cout << " " << setw(14) << products[i].ID << "┃";
+            cout << " " << setw(14) << products[i].name << "┃";
             cout << " " << setw(14);
 
-            if(pro_stock[i] <= 10) {
+            if(products[i].stock <= 10) {
                 setcolor(12);
-            } else if(pro_stock[i] > 100) {
+            } else if(products[i].stock > 100) {
                 setcolor(14);
             } 
-            cout << pro_stock[i];
+            cout << products[i].stock;
             setcolor(7);
 
             cout << "┃";
@@ -1673,7 +1549,7 @@ void showStock(string products[],bool pro_flag[],int pro_IDs[],int pro_stock[],i
 
 }
 
-void outOfStock(string products[],bool pro_flag[],int pro_IDs[],int pro_stock[],int MAX_PRODUCTS,bool& flag) {
+void outOfStock(product products[],int productCount,bool& flag) {
 
 
     system("cls");
@@ -1687,22 +1563,22 @@ void outOfStock(string products[],bool pro_flag[],int pro_IDs[],int pro_stock[],
     cout << "\t\t\t\t┣━━━━━━━━━━━━━━━╋━━━━━━━━━━━━━━━╋━━━━━━━━━━━━━━━┫" << endl; // 66
 
 
-    for(int i = 0; i < MAX_PRODUCTS; i ++) {
-        if(pro_flag[i] && pro_stock[i] == 0) {
+    for(int i = 0; i < productCount; i ++) {
+        if(products[i].flag && products[i].stock == 0) {
 
             flag = true;
 
             cout << "\t\t\t\t┃";
-            cout << " " << setw(14) << pro_IDs[i] << "┃";
-            cout << " " << setw(14) << products[i] << "┃";
+            cout << " " << setw(14) << products[i].ID << "┃";
+            cout << " " << setw(14) << products[i].name << "┃";
             cout << " " << setw(14);
 
-            if(pro_stock[i] <= 10) {
+            if(products[i].stock <= 10) {
                 setcolor(12);
-            } else if(pro_stock[i] > 100) {
+            } else if(products[i].stock > 100) {
                 setcolor(14);
             } 
-            cout << pro_stock[i];
+            cout << products[i].stock;
             setcolor(7);
 
             cout << "┃";
@@ -1716,7 +1592,7 @@ void outOfStock(string products[],bool pro_flag[],int pro_IDs[],int pro_stock[],
 
 }
 
-void showDisabledProducts(string products[],double pro_cprices[],int pro_profit_percent[],int pro_stock[],bool pro_active[],int pro_IDs[],bool pro_flag[],int MAX_PRODUCTS,bool& flag) {
+void showDisabledProducts(product products[],int MAX_PRODUCTS,bool& flag) {
     
     system("cls");
     print_logo();
@@ -1731,13 +1607,13 @@ void showDisabledProducts(string products[],double pro_cprices[],int pro_profit_
     cout << "\t\t┣━━━━━━━━━━━━━━━━╋━━━━━━━━━━━━━━━╋━━━━━━━━━━━━━━━╋━━━━━━━━━━━━━━━┫" << endl; // 66
 
     for(int i = 0; i < MAX_PRODUCTS;i++) {
-        if(pro_flag[i] && !pro_active[i]) {
+        if(products[i].flag && !products[i].active) {
             flag = true;
             cout << "\t\t┃";
             cout << " " << setw(15) << ++count << "┃";
-            cout << " " << setw(14) << makeIDString("PR",pro_IDs[i]) << "┃";
-            cout << " " << setw(14) << products[i] << "┃";
-            cout << " " << setw(14) << pro_cprices[i] * (1 + pro_profit_percent[i] / 100);
+            cout << " " << setw(14) << makeIDString("PR",products[i].ID) << "┃";
+            cout << " " << setw(14) << products[i].name << "┃";
+            cout << " " << setw(14) << products[i].price * (1 + products[i].profit_percent / 100);
             cout << "┃";
             cout << endl;
         }
@@ -1748,7 +1624,7 @@ void showDisabledProducts(string products[],double pro_cprices[],int pro_profit_
 
 }
 
-void showPrices(string products[],double pro_cprices[],int pro_profit_percent[],int pro_stock[],bool pro_active[],int pro_IDs[],bool pro_flag[],int MAX_PRODUCTS,bool& flag) {
+void showPrices(product products[],int MAX_PRODUCTS,bool& flag) {
     
     system("cls");
     print_logo();
@@ -1763,13 +1639,13 @@ void showPrices(string products[],double pro_cprices[],int pro_profit_percent[],
     cout << "\t\t┣━━━━━━━━━━━━━━━━╋━━━━━━━━━━━━━━━╋━━━━━━━━━━━━━━━╋━━━━━━━━━━━━━━━┫" << endl; // 66
 
     for(int i = 0; i < MAX_PRODUCTS;i++) {
-        if(pro_flag[i] && pro_stock[i] != 0 && pro_active[i]) {
+        if(products[i].flag && products[i].stock != 0 && products[i].active) {
             flag = true;
             cout << "\t\t┃";
             cout << " " << setw(15) << ++count << "┃";
-            cout << " " << setw(14) << makeIDString("PR",pro_IDs[i]) << "┃";
-            cout << " " << setw(14) << products[i] << "┃";
-            cout << " " << setw(14) << pro_cprices[i] * (1 + pro_profit_percent[i] / 100.0);
+            cout << " " << setw(14) << makeIDString("PR",products[i].ID) << "┃";
+            cout << " " << setw(14) << products[i].name << "┃";
+            cout << " " << setw(14) << products[i].price * (1 + products[i].profit_percent / 100.0);
             cout << "┃";
             cout << endl;
         }
@@ -1780,7 +1656,7 @@ void showPrices(string products[],double pro_cprices[],int pro_profit_percent[],
 
 }
 
-void showProductsAdmin(string products[],double pro_cprices[],int pro_profit_percent[],bool pro_active[],int pro_IDs[],bool pro_flag[],int MAX_PRODUCTS) {
+void showProductsAdmin(product products[],int MAX_PRODUCTS) {
     
     system("cls");
     print_logo();
@@ -1802,23 +1678,23 @@ void showProductsAdmin(string products[],double pro_cprices[],int pro_profit_per
     cout << "\t┣━━━━━━━━━━━━━━━━╋━━━━━━━━━━━━━━━╋━━━━━━━━━━━━━━━━━╋━━━━━━━━━━━━━━━╋━━━━━━━━━━━━━━━━━━╋━━━━━━━━━━━━━━━┫" << endl; // 66
 
     for(int i = 0; i < MAX_PRODUCTS;i++) {
-        if(pro_flag[i]) {
+        if(products[i].flag) {
             cout << "\t┃";
             cout << " " << setw(15) << ++count << "┃";
-            cout << " " << setw(14) << makeIDString("PR",pro_IDs[i]) << "┃";
+            cout << " " << setw(14) << makeIDString("PR",products[i].ID) << "┃";
             cout << " ";
-            if(!pro_active[i]) {
+            if(!products[i].active) {
 
                 disFound = true;
                 setcolor(14);
 
             }
-            cout << setw(16) << centerString(products[i],16);
+            cout << setw(16) << centerString(products[i].name,16);
             setcolor(7);
             cout << "┃";
-            cout << " " << setw(14) << prefixToDouble(pro_cprices[i],"Rs.",2) << "┃";
-            cout << " " << setw(17) << centerString(postfixInt(pro_profit_percent[i],"%"),14) << "┃";
-            cout << " " << setw(14) << prefixToDouble(pro_cprices[i] * (1 + pro_profit_percent[i] / 100.0),"Rs.",2);
+            cout << " " << setw(14) << prefixToDouble(products[i].price,"Rs.",2) << "┃";
+            cout << " " << setw(17) << centerString(postfixInt(products[i].profit_percent,"%"),14) << "┃";
+            cout << " " << setw(14) << prefixToDouble(products[i].price * (1 + products[i].profit_percent / 100.0),"Rs.",2);
             cout << "┃";
             cout << endl;
         }
@@ -1852,11 +1728,11 @@ void print_logo() {
 
 // Delete/Disable Functions
 
-void deletemoderator(bool moder_flag[], int moder_IDs[], int moderID, int MAX_MODERATORS) {
+void deletemoderator(moderator moderators[],int moderID,int MAX_MODERATORS) {
 
     for (int i = 0; i < MAX_MODERATORS; i++) {
-        if (moder_flag[i] && moder_IDs[i] == moderID) {
-            moder_flag[i] = false; // Mark as free index
+        if (moderators[i].flag && moderators[i].ID == moderID) {
+            moderators[i].flag = false; // Mark as free index
             cout << "\n\n\t\tModerator deleted successfully." << endl;
             return;
         }
@@ -1864,13 +1740,13 @@ void deletemoderator(bool moder_flag[], int moder_IDs[], int moderID, int MAX_MO
 
     cout << "\n\n\t\tNo Moderator found with ID " << moderID << "." << endl;
 }
-void disableProduct(int pro_IDs[],bool pro_active[],bool pro_flag[],int ID,int size) {
+void disableProduct(product products[],int ID,int size) {
 
-    int index = returnIndexByID(pro_IDs,pro_flag,ID,size);
+    int index = returnIndexByID(products,ID,size);
 
-    if(index != -1 && pro_active[index] == true) {
+    if(index != -1 && products[index].active == true) {
 
-        pro_active[index] = false; // change active state
+        products[index].active = false; // change active state
         cout << "\n\n\t\tProduct Disabled Successfully." << endl;
         setcolor(14);
         cout << "\n\n\t\tNow This Product will not be visible to customers for purchase.You\n\t\tcan enable it again anytime.";
@@ -1884,11 +1760,9 @@ void disableProduct(int pro_IDs[],bool pro_active[],bool pro_flag[],int ID,int s
 }
 
 // Input Output
+void buyItems(product products[],purchase purchases[],item_purchase item_purchases[],int custID,int MAX_PRODUCTS,int MAX_PURCHASES,int& purchaseCount,int& item_purCount,int productCount) {
 
-void buyItems(string products[],int custID,int pro_IDs[],double pro_cprices[],int pro_profit_percent[],unsigned long int pro_sell[],int pro_stock[],bool pro_active[],int purchases[],double purchaseBill[],int item_purchases[][4],
-bool pro_flag[],int MAX_PRODUCTS,int MAX_PURCHASES,int& purchaseID,int& item_purCount,int productCount) {
-
-    if(purchaseID == MAX_PURCHASES) {
+    if(purchaseCount == MAX_PURCHASES) {
         cout << "Some Error on System." << endl;
         return;
     }
@@ -1897,7 +1771,7 @@ bool pro_flag[],int MAX_PRODUCTS,int MAX_PURCHASES,int& purchaseID,int& item_pur
 
     int tem_stock[productCount];
 
-    copyIntArray(tem_stock,pro_stock,productCount); // copy stock in array so that it dont get modified untill customer consents to pay bill
+    copyIntArray(tem_stock,products,productCount); // copy stock in array so that it dont get modified untill customer consents to pay bill
 
     int cart[10][2]; // productID,quantity
     int cartN = 0;
@@ -1905,8 +1779,8 @@ bool pro_flag[],int MAX_PRODUCTS,int MAX_PURCHASES,int& purchaseID,int& item_pur
     while(true) {
         cout << "\n\n\t\t";
         tem_int = intValidation("Product ID","PR",1,productCount - 1);
-        int index = returnIndexByID(pro_IDs,pro_flag,tem_int,MAX_PRODUCTS);
-        if(index == -1 || pro_stock[index] == 0) {
+        int index = returnIndexByID(products,tem_int,MAX_PRODUCTS);
+        if(index == -1 || products[index].stock == 0) {
 
             setcolor(4);
             cout << "\n\n\n\t\tWrong Product ID" << endl;
@@ -1916,7 +1790,7 @@ bool pro_flag[],int MAX_PRODUCTS,int MAX_PURCHASES,int& purchaseID,int& item_pur
         cart[cartN][0] = tem_int;
         cout << "\n\t\t";
         setcolor(3);
-        cout << "\n\t\tProduct Name : " << products[index];
+        cout << "\n\t\tProduct Name : " << products[index].name;
         cout << "\n\t\tAvailable Stock : " << tem_stock[index];
         cout << "\n\t\t\n\t\t";
         setcolor(7);
@@ -1939,7 +1813,7 @@ bool pro_flag[],int MAX_PRODUCTS,int MAX_PURCHASES,int& purchaseID,int& item_pur
 
             bool flag = false;
 
-            showPrices(products,pro_cprices,pro_profit_percent,tem_stock,pro_active,pro_IDs,pro_flag,MAX_PRODUCTS,flag);
+            showPrices(products,MAX_PRODUCTS,flag);
 
         } else break;
 
@@ -1960,14 +1834,14 @@ bool pro_flag[],int MAX_PRODUCTS,int MAX_PURCHASES,int& purchaseID,int& item_pur
 
         for(int i = 0;i < cartN;i++) {
 
-            proIndex = returnIndexByID(pro_IDs,pro_flag,cart[i][0],MAX_PRODUCTS);
+            proIndex = returnIndexByID(products,cart[i][0],MAX_PRODUCTS);
 
-            double item_price = pro_cprices[proIndex] * (1 + pro_profit_percent[proIndex]/100.0); // Unit price
+            double item_price = products[proIndex].price * (1 + products[proIndex].profit_percent/100.0); // Unit price
             double t_price = cart[i][1] * item_price; // Quantity * Unit Price
             total += t_price; // Increase Total
 
             cout << "\n\t\t┃";
-            cout << " " << setw(15) << products[proIndex] << "┃"; // Name
+            cout << " " << setw(15) << products[proIndex].name << "┃"; // Name
             cout << " " << setw(14) << cart[i][1] << "┃"; // Quantity
             cout << " " << setw(14) << item_price << "┃"; // unit price
             cout << " " << setw(14) << t_price; // price
@@ -1984,24 +1858,24 @@ bool pro_flag[],int MAX_PRODUCTS,int MAX_PURCHASES,int& purchaseID,int& item_pur
 
         if(yesnt()) {
 
-            purchases[purchaseID] = custID;
-            purchaseBill[purchaseID] = total;
+            purchases[purchaseCount].customerID = custID;
+            purchases[purchaseCount].bill = total;
 
             for(int i = 0;i < cartN;i++) {
 
-                proIndex = returnIndexByID(pro_IDs,pro_flag,cart[i][0],MAX_PRODUCTS);
+                proIndex = returnIndexByID(products,cart[i][0],MAX_PRODUCTS);
 
-                item_purchases[item_purCount][0] = purchaseID; // purchaseID
-                item_purchases[item_purCount][1] = cart[i][0]; // productID
-                item_purchases[item_purCount][2] = cart[i][1]; // quantity
-                item_purchases[item_purCount][3] = (pro_cprices[proIndex] * (1 + pro_profit_percent[proIndex]/100.0)) * cart[i][1]; // price
-                pro_stock[proIndex] -= cart[i][1]; // decrease orignal stock
-                pro_sell[proIndex] += cart[i][1]; // increase sell count
+                item_purchases[item_purCount].purchaseID = purchaseCount; // purchaseCount
+                item_purchases[item_purCount].productID = cart[i][0]; // productID
+                item_purchases[item_purCount].quantity = cart[i][1]; // quantity
+                item_purchases[item_purCount].bill = (products[proIndex].price * (1 + products[proIndex].profit_percent/100.0)) * cart[i][1]; // price
+                products[proIndex].stock -= cart[i][1]; // decrease orignal stock
+                products[proIndex].sell += cart[i][1]; // increase sell count
                 item_purCount++;
 
             }
 
-            purchaseID++;
+            purchaseCount++;
 
             cout << "\n\n\t\tThanks for This Purchase." << endl;
             cout << "\n\t\t";
@@ -2010,7 +1884,7 @@ bool pro_flag[],int MAX_PRODUCTS,int MAX_PURCHASES,int& purchaseID,int& item_pur
         }
 
 }
-void reportToAdmin(int moderator,string reportSubject[],string reports[],bool report_flag[],int report_status[],int report_moderator[],int MAX_REPORTS) {
+void reportToAdmin(int moderator,report reports[],int MAX_REPORTS) {
 
     system("cls");
     print_logo();
@@ -2018,14 +1892,14 @@ void reportToAdmin(int moderator,string reportSubject[],string reports[],bool re
     printHeader("Report To Admin");
 
     for(int i = 0;i < MAX_REPORTS;i++) {
-        if(!report_flag[i]) {
+        if(!reports[i].flag) {
 
             cout << "\t\tEnter Report Subject (Max 20 Characters)" << endl;
             cout << endl << endl <<"\t\t";
 
             setcolor(14);
 
-            reportSubject[i] = getString(20);
+            reports[i].subject = getString(20);
 
             setcolor(7);
 
@@ -2035,7 +1909,7 @@ void reportToAdmin(int moderator,string reportSubject[],string reports[],bool re
 
             printHeader("Report To Admin");
 
-            cout << "\t\tSubject : " << reportSubject[i];
+            cout << "\t\tSubject : " << reports[i].subject;
 
             cout << endl << endl << endl;
 
@@ -2044,12 +1918,12 @@ void reportToAdmin(int moderator,string reportSubject[],string reports[],bool re
             cout << endl << endl << endl << "\t\t";
 
             setcolor(14);
-            reports[i] = getString(200);
+            reports[i].body = getString(200);
             setcolor(7);
 
-            report_flag[i] = true;
-            report_status[i] = -1; // pending
-            report_moderator[i] = moderator; // moderator ID to check my request
+            reports[i].flag = true;
+            reports[i].status = -1; // pending
+            reports[i].moderatorID = moderator; // moderator ID to check my request
 
             cout << endl << endl << endl;
             cout << "\t\tReport Send to Admin Successfully" << endl;
@@ -2067,9 +1941,7 @@ void reportToAdmin(int moderator,string reportSubject[],string reports[],bool re
 
 }
 
-void moderateReviews(int moderID,bool review_flag[],int reviewCustID[],int reviewModer[],int reviewProID[],int reviewRating[],string reviews[],int reviewStatus[],int reviewType[],
-                    string cust_name[],bool cust_flag[],int cust_IDs[],int MAX_CUSTOMERS,
-                    string products[],int pro_IDs[],bool pro_flag[],int MAX_PRODUCTS,int MAX_REVIEWS,int type,bool edit) {
+void moderateReviews(review reviews[],customer customers[],product products[],int moderID,int reviewCount,int MAX_CUSTOMERS,int MAX_PRODUCTS,int type,bool edit) {
 
     system("cls");
     print_logo();
@@ -2090,18 +1962,17 @@ void moderateReviews(int moderID,bool review_flag[],int reviewCustID[],int revie
     cout << "┣━━━━━━━━━━━━━━╋━━━━━━━━━━━━━━╋━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╋━━━━━━━━━━━━━━┫" << endl;
     int count = 0;
 
-    for(int i = 0;i < MAX_REVIEWS;i++) {
-        if(!review_flag[i]) break;
+    for(int i = 0;i < reviewCount;i++) {
 
-        if(reviewStatus[i] == type) {
+        if(reviews[i].status == type) {
 
             found = true;
 
             cout << "┃" << setw(14) << centerString(pad(++count,2),14)
-                 << "┃" << setw(14) << centerString(cust_name[returnIndexByID(cust_IDs,cust_flag,reviewCustID[i],MAX_CUSTOMERS)],14)
-                 << "┃ "<< setw(65) << reviews[i];
+                 << "┃" << setw(14) << centerString(customers[returnIndexByID(customers,reviews[i].customerID,MAX_CUSTOMERS)].name,14)
+                 << "┃ "<< setw(65) << reviews[i].review;
 
-            int index = returnIndexByID(pro_IDs,pro_flag,reviewProID[i],MAX_PRODUCTS);
+            int index = returnIndexByID(products,reviews[i].productID,MAX_PRODUCTS);
             
             cout << "┃"<< setw(14);
 
@@ -2109,7 +1980,7 @@ void moderateReviews(int moderID,bool review_flag[],int reviewCustID[],int revie
                 if(index != -1) {
                     setcolor(6);
 
-                    cout << centerString(products[returnIndexByID(pro_IDs,pro_flag,reviewProID[i],MAX_PRODUCTS)],14);
+                    cout << centerString(products[returnIndexByID(products,reviews[i].productID,MAX_PRODUCTS)].name,14);
 
                     setcolor(7);
 
@@ -2147,27 +2018,23 @@ void moderateReviews(int moderID,bool review_flag[],int reviewCustID[],int revie
 
             if(choice == 1) {
 
-                int index = returnIndexOfReview(number,review_flag,reviewStatus,MAX_REVIEWS);
+                int index = returnIndexOfReview(number,reviews,reviewCount);
 
-                reviewStatus[index] = 1; // approve
-                reviewModer[index] = moderID; // approved by which moderator
+                reviews[index].status = 1; // approve
+                reviews[index].moderatorID = moderID; // approved by which moderator
 
-                moderateReviews(moderID,review_flag,reviewCustID,reviewModer,reviewProID,reviewRating,reviews,reviewStatus,reviewType,
-                                            cust_name,cust_flag,cust_IDs,MAX_CUSTOMERS,
-                                            products,pro_IDs,pro_flag,MAX_PRODUCTS,MAX_REVIEWS,-1,true);
+                moderateReviews(reviews,customers,products,moderID,reviewCount,MAX_CUSTOMERS,MAX_PRODUCTS,-1,true);
             }
                                             
             if(choice == 2) {
 
                 
-                int index = returnIndexOfReview(number,review_flag,reviewStatus,MAX_REVIEWS);
+                int index = returnIndexOfReview(number,reviews,reviewCount);
 
-                reviewStatus[index] = 2; // disapprove
-                reviewModer[index] = moderID; // disapprove by which moderator
+                reviews[index].status = 2; // disapprove
+                reviews[index].moderatorID = moderID; // disapprove by which moderator
 
-                moderateReviews(moderID,review_flag,reviewCustID,reviewModer,reviewProID,reviewRating,reviews,reviewStatus,reviewType,
-                                            cust_name,cust_flag,cust_IDs,MAX_CUSTOMERS,
-                                            products,pro_IDs,pro_flag,MAX_PRODUCTS,MAX_REVIEWS,-1,true);
+                moderateReviews(reviews,customers,products,moderID,reviewCount,MAX_CUSTOMERS,MAX_PRODUCTS,-1,true);
 
                 }
             }
@@ -2178,8 +2045,7 @@ void moderateReviews(int moderID,bool review_flag[],int reviewCustID[],int revie
 
 }
 
-void proReview(int custID,int purchases[],int item_purchases[][4],int purchaseID,int item_purCount,int productCount,int MAX_PRODUCTS,
-               string reviews[],int reviewProID[], int reviewCustID[], int reviewRating[],int reviewModer[],int reviewStatus[],bool review_flag[],int reviewType[], int MAX_REVIEWS) {
+void proReview(int custID,purchase purchases[],item_purchase item_purchases[],review reviews[],int purchaseCount,int item_purCount,int productCount,int MAX_PRODUCTS, int MAX_REVIEWS) {
 
     int hehe = -1;
     cout << "\n\t\tDo you want to give Review about any of Product : ";
@@ -2192,7 +2058,7 @@ void proReview(int custID,int purchases[],int item_purchases[][4],int purchaseID
     int counter = 0;
     bool buyed = false;
 
-    int* buyedItems = returnBuyedProducts(1,purchases,item_purchases,purchaseID,item_purCount,MAX_PRODUCTS,counter);
+    int* buyedItems = returnBuyedProducts(custID,purchases,item_purchases,purchaseCount,item_purCount,MAX_PRODUCTS,counter);
 
     for(int i = 0;i < counter;i++) {
         if(hehe == buyedItems[i]) {
@@ -2210,23 +2076,23 @@ void proReview(int custID,int purchases[],int item_purchases[][4],int purchaseID
     }
 
     for(int i = 0; i < MAX_REVIEWS; i++) {
-        if(!review_flag[i]) {
+        if(!reviews[i].flag) {
 
             cout << "\n\n\t\tEnter your Review : ";
             setcolor(14);
-            reviews[i] = getString(60);
+            reviews[i].review = getString(60);
             cout << "\n\t\t";
             setcolor(7);
 
-            reviewRating[i] = intValidation("Your Rating ","",0,5);
+            reviews[i].rating = intValidation("Your Rating ","",0,5);
 
-            reviewCustID[i] = custID;
+            reviews[i].customerID = custID;
 
-            reviewProID[i] = hehe;
-            review_flag[i] = true;
-            reviewStatus[i] = -1;
-            reviewModer[i] = -1;
-            reviewType[i] = 2;
+            reviews[i].productID = hehe;
+            reviews[i].flag = true;
+            reviews[i].status = -1;
+            reviews[i].moderatorID = -1;
+            reviews[i].type = 2;
 
             setcolor(14);
             cout << "\n\n\t\tYour Review is Submitted.Our moderator will Approve your review soon\n\n\t\t";
@@ -2241,30 +2107,32 @@ void proReview(int custID,int purchases[],int item_purchases[][4],int purchaseID
     cout << "Some Error on System." << endl;
 
 }
-void generalReview(int custID, string reviews[],int reviewProID[], int reviewCustID[], int reviewRating[],int reviewModer[],int reviewStatus[],bool review_flag[],int reviewType[], int MAX_REVIEWS) {
+void generalReview(int custID, review reviews[], int reviewCount,int MAX_REVIEWS) {
 
     system("cls");
     print_logo();
     printHeader("Give General Review About Your Experience");
 
+    
+
     for(int i = 0; i < MAX_REVIEWS; i++) {
-        if(!review_flag[i]) {
+        if(!reviews[i].flag) {
 
             cout << "\t\tEnter your Review (Max 60 Characters)";
             cout << "\n\n\t\t";
             setcolor(14);
-            reviews[i] = getString(60);
+            reviews[i].review = getString(60);
             setcolor(7);
             cout << "\n\n\t\t";
-            reviewRating[i] = intValidation("Rating ","",0,5);
+            reviews[i].rating = intValidation("Rating ","",0,5);
 
-            reviewCustID[i] = custID;
+            reviews[i].customerID = custID;
 
-            reviewProID[i] = -1;
-            review_flag[i] = true;
-            reviewStatus[i] = -1;
-            reviewModer[i] = -1;
-            reviewType[i] = 1;
+            reviews[i].productID = -1;
+            reviews[i].flag = true;
+            reviews[i].status = -1;
+            reviews[i].moderatorID = -1;
+            reviews[i].type = 1;
 
             setcolor(14);
             cout << "\n\n\t\tYour Review is Submitted.Our Moderator will Approve your review soon\n\n\t\t";
@@ -2279,9 +2147,7 @@ void generalReview(int custID, string reviews[],int reviewProID[], int reviewCus
     cout << "Some Error on System." << endl;
 
 }
-void updatemoderator(string moder_first_name[], string moder_last_name[], string moder_username[], string moder_password[], 
-                   string moder_CNIC[], string moder_email[], char moder_phone[][10], int moder_salary[], 
-                   int moder_IDs[], bool moder_flag[], int moderID, int MAX_MODERATORS) {
+void updatemoderator(moderator moderators[], int moderID, int MAX_MODERATORS) {
 
 
     int choice = -1;
@@ -2289,7 +2155,7 @@ void updatemoderator(string moder_first_name[], string moder_last_name[], string
 
     for (int i = 0; i < MAX_MODERATORS; i++) {
 
-        if (moder_flag[i] && moder_IDs[i] == moderID) {
+        if (moderators[i].flag && moderators[i].ID == moderID) {
 
             index = i;
             break;
@@ -2303,7 +2169,7 @@ void updatemoderator(string moder_first_name[], string moder_last_name[], string
 
             while (true) { // show updated details each time it changes
             
-                showmoderatorProfile(moder_first_name,moder_last_name,moder_username,moder_password,moder_CNIC,moder_email,moder_phone,moder_salary,moder_IDs,moder_flag,moderID,MAX_MODERATORS);
+                showmoderatorProfile(moderators,moderID,MAX_MODERATORS);
                 cout << "\n\n\n";
                 printHeader("Edit Moderator Detail");
 
@@ -2323,37 +2189,37 @@ void updatemoderator(string moder_first_name[], string moder_last_name[], string
                 switch (choice) {
                     case 1:
                         cout << "\n\t\tEnter new First Name: ";
-                        moder_first_name[index] = getString(15,false,true);
+                        moderators[index].first_name = getString(15,false,true);
 
                         break;
                     case 2:
                         cout << "\n\t\tEnter new Last Name: ";
-                        moder_last_name[index] = getString(15,false,true);
+                        moderators[index].last_name = getString(15,false,true);
 
                         break;
                     case 3:
                         cout << "\n\t\tEnter new Username: ";
-                        moder_username[index] = getString(8,false,true);
+                        moderators[index].username = getString(8,false,true);
                         break;
                     case 4:
                         cout << "\n\t\tEnter new Password: ";
-                        moder_password[index] = getString(8);
+                        moderators[index].password = getString(8);
                         break;
                     case 5:
                         cout << "\n\t\tEnter new CNIC: ";
-                        moder_CNIC[index] = inputCNIC();
+                        moderators[index].CNIC = inputCNIC();
                         break;
                     case 6:
                         cout << "\n\t\tEnter new Email: ";
-                        moder_email[index] = inputEmail();
+                        moderators[index].email = inputEmail();
                         break;
                     case 7:
                         cout << "\n\t\tEnter new Phone: ";
-                        copy(inputPhoneNo(),moder_phone[index]);
+                        copy(inputPhoneNo(),moderators[index].phone);
                         break;
                     case 8:
                         cout << "\n\t\tEnter new Salary: ";
-                        moder_salary[index] = intValidation("","",1,100000);
+                        moderators[index].salary = intValidation("","",1,100000);
                         break;
                 }
 
@@ -2366,7 +2232,7 @@ void updatemoderator(string moder_first_name[], string moder_last_name[], string
     cout << "\n\n\t\t";
     hold();
 }
-void editStock(string products[],int pro_IDs[],int pro_stock[],bool pro_flag[],int productCount,int MAX_PRODUCTS) {
+void editStock(product products[],int productCount) {
 
     int temStock = 0;
 
@@ -2374,20 +2240,20 @@ void editStock(string products[],int pro_IDs[],int pro_stock[],bool pro_flag[],i
     int ID = intValidation("Product ID to edit Stock","PR",1,productCount);
 
     setcolor(14);
-    for(int i = 0; i < MAX_PRODUCTS;i++) {
-        if(pro_flag[i] && pro_IDs[i] == ID) {
-            cout << "\n\n\t\tProuct Name : " << products[i];
-            cout << "\n\n\t\tExisting Stock : " << pro_stock[i];
+    for(int i = 0; i < productCount;i++) {
+        if(products[i].flag && products[i].ID == ID) {
+            cout << "\n\n\t\tProuct Name : " << products[i].name;
+            cout << "\n\n\t\tExisting Stock : " << products[i].stock;
             setcolor(7);
             cout << "\n\n\t\t";
             cout << "\n\n\t\t1.\tAdd Stock\n\t\t2.\tRemove Stock\n\t\t";
             if(intValidation("","",1,2) == 1) {
 
-                if(pro_stock[i] < 1000) {
+                if(products[i].stock < 1000) {
 
                 cout << "\n\n\t\t";
-                temStock = intValidation("Stock to Add","",1,1000 - pro_stock[i]);
-                pro_stock[i] += temStock;
+                temStock = intValidation("Stock to Add","",1,1000 - products[i].stock);
+                products[i].stock += temStock;
 
                 } else  {
                     cout << "\n\n\t\tMaximum Stock Reached\n\n\t\t";
@@ -2396,11 +2262,11 @@ void editStock(string products[],int pro_IDs[],int pro_stock[],bool pro_flag[],i
 
             } else {
 
-                if(pro_stock[i] > 0) {
+                if(products[i].stock > 0) {
 
                 cout << "\n\n\t\t";
-                temStock = intValidation("Stock to Remove","",1,pro_stock[i]);
-                pro_stock[i] -= temStock;
+                temStock = intValidation("Stock to Remove","",1,products[i].stock);
+                products[i].stock -= temStock;
 
                 } else  {
                     cout << "\n\n\t\tNo Stock Available to Remove\n\n\t\t";
@@ -2409,7 +2275,7 @@ void editStock(string products[],int pro_IDs[],int pro_stock[],bool pro_flag[],i
             }
 
             bool flag = false;
-            showStock(products,pro_flag,pro_IDs,pro_stock,MAX_PRODUCTS,flag);
+            showStock(products,productCount,flag);
 
             return;
         }
@@ -2417,21 +2283,21 @@ void editStock(string products[],int pro_IDs[],int pro_stock[],bool pro_flag[],i
 
     cout << "Product Not Found." << endl;
 }
-void updatePrice(string products[],int pro_IDs[],double pro_cprices[],int pro_profit_percent[],bool pro_flag[],int ID,int size) {
+void updatePrice(product products[],int ID,int size) {
 
     for(int i = 0; i < size; i++) {
-        if(pro_flag[i] && pro_IDs[i] == ID) {
+        if(products[i].flag && products[i].ID == ID) {
 
             cout << endl << endl << endl << "\t\t";
-            cout << "Product Name : " << products[i] << endl;
-            cout << "\t\tOld Price: " << pro_cprices[i] << endl;
-            cout << "\t\tOld Profit Percent: " << pro_profit_percent[i] << "%" << endl;
+            cout << "Product Name : " << products[i].name << endl;
+            cout << "\t\tOld Price: " << products[i].price << endl;
+            cout << "\t\tOld Profit Percent: " << products[i].profit_percent << "%" << endl;
 
             cout << endl << endl << endl << "\t\t";
             double price = doubleValidation("New Price",10000);
-            pro_cprices[i] = price;
+            products[i].price = price;
             cout << "\n\t\t";
-            pro_profit_percent[i] = intValidation("New Profit Percent","",1,99);
+            products[i].profit_percent = intValidation("New Profit Percent","",1,99);
             cout << "\n\t\tPrice Updated Successfully." << endl;
             return;
         }
@@ -2810,7 +2676,7 @@ char* inputCNIC() {
 
 // Operations
 
-void gotoxy(int x, int y) { // manipulate the position of cursor
+void cursorPosition(int x, int y) { // manipulate the position of cursor
     COORD c;
 
     c.X = x;
@@ -2826,13 +2692,13 @@ void setcolor(int color) { // change color of text
 
 }
 
-void enableProduct(int pro_IDs[],bool pro_active[],bool pro_flag[],int ID,int size) {
+void enableProduct(product products[],int ID,int size) {
 
-    int index = returnIndexByID(pro_IDs,pro_flag,ID,size);
+    int index = returnIndexByID(products,ID,size);
 
-    if(index != -1 && pro_active[index] != true) { // enable if disabled
+    if(index != -1 && products[index].active != true) { // enable if disabled
 
-        pro_active[index] = true;
+        products[index].active = true;
         cout << "\n\n\t\tProduct Enabled Successfully." << endl;
         setcolor(14);
         cout << "\n\n\t\tNow This Product will be visible to customers for purchase.";
@@ -2845,35 +2711,35 @@ void enableProduct(int pro_IDs[],bool pro_active[],bool pro_flag[],int ID,int si
          
 }
 
-void addCustomer(string cust_name[],char cust_CNIC[][16],int cust_IDs[],bool cust_flag[],int custID,int MAX_CUSTOMERS) {
+void addCustomer(customer customers[],int custIDcounter,int MAX_CUSTOMERS) {
 
     printBorder();
 
     for(int i = 0;i < MAX_CUSTOMERS;i++) {
-        if(!cust_flag[i]) { // check empty index
+        if(!customers[i].flag) { // check empty index
 
-            gotoxy(35,18);
+            cursorPosition(35,18);
             cout << "Enter Your Name (max 15): ";
             setcolor(14);
-            cust_name[i] = getString(15,false,true); // get input with limit 15
+            customers[i].name = getString(15,false,true); // get input with limit 15
             setcolor(7);
 
-            gotoxy(35,19);
+            cursorPosition(35,19);
             cout << "Enter Your CNIC : ";
             setcolor(14);
-            copy(inputCNIC(),cust_CNIC[i]);
+            copy(inputCNIC(),customers[i].CNIC);
             setcolor(7);
 
-            cust_flag[i] = true;
-            cust_IDs[i] = ++custID;
+            customers[i].flag = true;
+            customers[i].ID = ++custIDcounter;
 
-            gotoxy(40,23);
+            cursorPosition(40,23);
             setcolor(14);
             cout << "Sign up Successfully." << endl;
             setcolor(7);
 
 
-            gotoxy(40,27);
+            cursorPosition(40,27);
 
             hold();
             return;
@@ -2881,65 +2747,64 @@ void addCustomer(string cust_name[],char cust_CNIC[][16],int cust_IDs[],bool cus
     }
 
 
-    gotoxy(35,18);
+    cursorPosition(35,18);
     cout << "There is some issue in System" << endl;
-    gotoxy(35,20);
+    cursorPosition(35,20);
     hold();
 }
 
-void addmoderator(string moder_first_name[], string moder_last_name[], string moder_username[], string moder_password[], string moder_CNIC[],
-                string moder_email[], char moder_phone[][10], int moder_salary[], int moder_IDs[], bool moder_flag[], int& moderID, int MAX_MODERATORS) {
+void addmoderator(moderator moderators[],int& moderIDcounter,int MAX_MODERATORS) {
 
     system("cls");
     print_logo();
     printHeader("Add Moderator to System");
     
     for (int i = 0; i < MAX_MODERATORS; i++) {
-        if (!moder_flag[i]) {
-            moder_flag[i] = true;
+        if (!moderators[i].flag) {
+            moderators[i].flag = true;
 
             cout << "\n\n\t\tEnter Moderator First Name (max 15): ";
             setcolor(14);
-            moder_first_name[i] = getString(15,false,true);
+            moderators[i].first_name = getString(15,false,true);
             setcolor(7);
 
             cout << "\n\n\t\tEnter Moderator Last Name (max 15): ";
             setcolor(14);
-            moder_last_name[i] = getString(15,false,true);
+            moderators[i].last_name = getString(15,false,true);
             setcolor(7);
 
             cout << "\n\n\t\tEnter Moderator Username (max 8): ";
             setcolor(14);
-            moder_username[i] = getString(8,false,true);
+            moderators[i].username = getString(8,false,true);
             setcolor(7);
 
             cout << "\n\n\t\tEnter Moderator Password (max 8): ";
             setcolor(14);
-            moder_password[i] = getString(8);
+            moderators[i].password = getString(8);
             setcolor(7);
 
             cout << "\n\n\t\tEnter Moderator CNIC: ";
             setcolor(14);
-            moder_CNIC[i] = inputCNIC();
+            moderators[i].CNIC = inputCNIC();
             setcolor(7);
 
             cout << "\n\n\t\tEnter Moderator Email: ";
             setcolor(14);
-            moder_email[i] = inputEmail();
+            moderators[i].email = inputEmail();
             setcolor(7);
 
             cout << "\n\n\t\tEnter Phone Number: ";
             
             setcolor(14);
-            copy(inputPhoneNo(),moder_phone[i]);
+            copy(inputPhoneNo(),moderators[i].phone);
             setcolor(7);
 
             cout << "\n\n\t\t";
-            moder_salary[i] = intValidation("Moderator Salary","",1,100000);
+            moderators[i].salary = intValidation("Moderator Salary","",1,100000);
 
-            moder_IDs[i] = ++moderID;
+            moderators[i].ID = ++moderIDcounter;
 
-            cout << "\n\n\t\tModerator added successfully with ID " << moder_IDs[i] << endl;
+            cout << "\n\n\t\tModerator added successfully with ID " << moderators[i].ID << endl;
             cout << "\n\n\t\t";
             hold();
             return;
@@ -2948,38 +2813,38 @@ void addmoderator(string moder_first_name[], string moder_last_name[], string mo
 
     cout << "No available slots to add a new moderator." << endl;
 }
-void addProduct(string products[],double pro_cprices[],int pro_profit_percent[],int pro_IDs[],int pro_stock[],bool pro_active[],bool pro_flag[],int MAX_PRODUCTS,int &productCount) {
+void addProduct(product products[],int &productCount,int MAX_PRODUCTS) {
 
     printBorder();
 
     for(int i = 0; i < MAX_PRODUCTS; i++) {
-        if(!pro_flag[i]) {
-            pro_flag[i] = true;
-            pro_active[i] = true;
+        if(!products[i].flag) {
+            products[i].flag = true;
+            products[i].active = true;
 
-            gotoxy(35,19);
+            cursorPosition(35,19);
             cout << "Enter Product Name (max 15): ";
-            products[i] = getString(15);
+            products[i].name = getString(15);
 
-            gotoxy(35,20);
-            pro_cprices[i] = doubleValidation("Product Price",10000);
+            cursorPosition(35,20);
+            products[i].price = doubleValidation("Product Price",10000);
 
-            pro_IDs[i] = ++productCount;
+            products[i].ID = ++productCount;
 
-            gotoxy(35,21);
-            pro_profit_percent[i] = intValidation("Profit Percent","",1,99);
+            cursorPosition(35,21);
+            products[i].profit_percent = intValidation("Profit Percent","",1,99);
             
-            gotoxy(35,22);
-            pro_stock[i] = intValidation("Product Stock","",1,1000);
+            cursorPosition(35,22);
+            products[i].stock = intValidation("Product Stock","",1,1000);
 
-            gotoxy(35,25);
+            cursorPosition(35,25);
             
             cout << "Product Addded Successfully." << endl;
             return;
         }
     }
 
-    gotoxy(35,19);
+    cursorPosition(35,19);
     cout << "No Slot Available for New Product.";
 }
 
@@ -3037,9 +2902,9 @@ bool isAlpha(char a) { // check if alphabet
     return false;
 }
 
-void copyULIntArray(unsigned long int arr1[],const unsigned long int arr2[],int size) {
+void copyULIntArray(unsigned long int arr1[],product products[],int size) {
     for(int i = 0;i < size;i++) // copy unsigned long int array
-        arr1[i] = arr2[i];
+        arr1[i] = products[i].sell;
 }
 
 void initializeByIndex(int arr[],int size) { // initialixe array with index number
@@ -3128,18 +2993,18 @@ string centerString(string str,int width) { // add leading and trailing spaces t
     return centeredString;
 }
 
-bool printAble(char c) { // check is character is printable
+bool printAble(char c) { // check if character is printable
     if(c < 32 || c > 127)
         return false;
     return true;
 }
 
-int returnIndexOfReview(int number,bool review_flag[],int reviewStatus[],int MAX_REVIEWS) {
+int returnIndexOfReview(int number,review reviews[],int reviewCount) {
 
     int count = 0;
 
-    for(int i = 0;i < MAX_REVIEWS;i++) {
-        if(review_flag[i] && reviewStatus[i] == -1)
+    for(int i = 0;i < reviewCount;i++) {
+        if(reviews[i].status == -1)
             count++;
         if(count == number)
             return i;
@@ -3149,9 +3014,9 @@ int returnIndexOfReview(int number,bool review_flag[],int reviewStatus[],int MAX
 
 }
 
-void copyIntArray(int arr1[],const int arr2[],int size) { // copy int array
+void copyIntArray(int arr1[],const product products[],int size) { // copy int array
     for(int i = 0;i < size;i++)
-        arr1[i] = arr2[i];
+        arr1[i] = products[i].stock;
 }
 
 void copy(char* c1, char c2[]) { // copy char arrays
@@ -3315,12 +3180,12 @@ int navigateMenu(string menuItems[], int menuSize) {
 void displayMenu(string menuItems[], int menuSize, int selected) {
 
     int x = 35; int y = 15;
-    gotoxy(x,y);
+    cursorPosition(x,y);
 
     cout << "       "<< "■■■ Utility Store System ■■■\n\n";
     x += 5;y += 2;
     for (int i = 0; i < menuSize; i++) {
-        gotoxy(x, ++y);
+        cursorPosition(x, ++y);
         if (i == selected) {
             setcolor(12);
             cout << " -> ";  // Highlight selected option
@@ -3335,38 +3200,38 @@ void displayMenu(string menuItems[], int menuSize, int selected) {
 
 // Authorize Users
 
-int loginCustomer(char cust_CNIC[][16],int cust_IDs[],string cust_name[],bool cust_flag[], int MAX_CUSTOMERS) {
+int loginCustomer(customer customers[], int MAX_CUSTOMERS) {
 
     printBorder();
 
-    gotoxy(45,16);
+    cursorPosition(45,16);
 
     cout << "Login as a Customer";
 
     char* CNIC;
 
-    gotoxy(35,18);
+    cursorPosition(35,18);
     setcolor(14);
     cout << "Enter Your CNIC : ";
     CNIC = inputCNIC();
     setcolor(7);
 
     for(int i = 0;i < MAX_CUSTOMERS;i++)
-        if(cust_flag[i] && isSame(CNIC,cust_CNIC[i])) { // match CNIC
-            gotoxy(42,23);
+        if(customers[i].flag && isSame(CNIC,customers[i].CNIC)) { // match CNIC
+            cursorPosition(42,23);
             cout << "Welcome ";
             setcolor(10);
-            cout << cust_name[i] << endl;
+            cout << customers[i].name << endl;
             setcolor(7); // Print Customer name
-            gotoxy(44,25);
+            cursorPosition(44,25);
             hold();
-            return cust_IDs[i];
+            return customers[i].ID;
         }
 
-    gotoxy(48,23);
+    cursorPosition(48,23);
     cout << "!Welcome Ooops"; // if CNIC dont match
 
-    gotoxy(40,25);
+    cursorPosition(40,25);
     hold();
     return -1;
 }
@@ -3375,19 +3240,19 @@ int getCredentials(string usernames[], string passwords[],int size,string user) 
 
     printBorder();
 
-    gotoxy(40,17);
+    cursorPosition(40,17);
     cout << "\tLogin as " << user;
 
     string uname, pwd;
 
-    gotoxy(35,19);
+    cursorPosition(35,19);
 
     cout << "Enter Username: ";
     setcolor(14);
     uname = getString(8,false,true);
     setcolor(7);
     
-    gotoxy(35,20);
+    cursorPosition(35,20);
 
     cout << "Enter Password: ";
 
@@ -3398,11 +3263,49 @@ int getCredentials(string usernames[], string passwords[],int size,string user) 
             return i; // if credentials are correct return index
     }
 
-    gotoxy(35,22);
+    cursorPosition(35,22);
 
     cout << "Ooops!!";
 
-    gotoxy(35,24);
+    cursorPosition(35,24);
+    hold();
+
+    return -1;
+
+}
+
+int getCredentials(moderator moderators[],int size) {
+    
+    printBorder();
+
+    cursorPosition(40,17);
+    cout << "\tLogin as Moderator";
+
+    string uname, pwd;
+
+    cursorPosition(35,19);
+
+    cout << "Enter Username: ";
+    setcolor(14);
+    uname = getString(8,false,true);
+    setcolor(7);
+    
+    cursorPosition(35,20);
+
+    cout << "Enter Password: ";
+
+    pwd = getString(8,true);
+    
+    for(int i = 0;i < size;i++) {
+        if(moderators[i].username == uname && moderators[i].password == pwd)
+            return i; // if credentials are correct return index
+    }
+
+    cursorPosition(35,22);
+
+    cout << "Ooops!!";
+
+    cursorPosition(35,24);
     hold();
 
     return -1;
@@ -3412,23 +3315,23 @@ int getCredentials(string usernames[], string passwords[],int size,string user) 
 // Returning FUnctions
 
 
-int* returnBuyedProducts(int custID,int purchases[],int item_purchases[][4],int purchaseID,int item_purCount,int MAX_PRODUCTS,int& distinctCounter) {
+int* returnBuyedProducts(int custID,purchase purchases[],item_purchase item_purchases[],int purchaseCount,int item_purCount,int MAX_PRODUCTS,int& distinctCounter) {
 
     int* distinctIDs = new int[MAX_PRODUCTS]; // array to store unique IDs
 
-    for(int i = 0;i < purchaseID;i++) { // loop over purchases
+    for(int i = 0;i < purchaseCount;i++) { // loop over purchases
 
-        if(purchases[i] == custID) { // if purchase is of requested customer
+        if(purchases[i].customerID == custID) { // if purchase is of requested customer
 
             for(int j = 0;j < item_purCount;j++) { // loop over items buyed in that purchase
 
-                if(item_purchases[j][0] == i) { // check if this item is of that purchase
+                if(item_purchases[j].purchaseID == i) { // check if this item is of that purchase
 
                     bool duplicate = false; // consider it as unique
 
                     for(int k = 0;k < distinctCounter;k++) { // loop over unique IDs array
 
-                        if(distinctIDs[k] == item_purchases[j][1]) { // if ID is already present then mark as duplicate
+                        if(distinctIDs[k] == item_purchases[j].productID) { // if ID is already present then mark as duplicate
 
                             duplicate = true;
                             break;
@@ -3437,7 +3340,7 @@ int* returnBuyedProducts(int custID,int purchases[],int item_purchases[][4],int 
                     }
 
                     if(!duplicate) // if not already present add it to unique IDs array
-                        distinctIDs[distinctCounter++] = item_purchases[j][1];
+                        distinctIDs[distinctCounter++] = item_purchases[j].productID;
 
                 }
 
@@ -3448,21 +3351,19 @@ int* returnBuyedProducts(int custID,int purchases[],int item_purchases[][4],int 
 
     return distinctIDs; // return unique IDs array
 }
-int* returnReviewedProducts(int custID,int reviewProID[],int reviewCustID[],int reviewType[],bool review_flag[],int MAX_PRODUCTS,int MAX_REVIEWS,int& distinctCounter) {
+int* returnReviewedProducts(int custID,review reviews[],int reviewCount,int productCount,int& distinctCounter) {
 
-    int* distinctIDs = new int[MAX_PRODUCTS]; // array to store unique IDs
+    int* distinctIDs = new int[productCount]; // array to store unique IDs
 
-    for(int i = 0;i < MAX_REVIEWS;i++) { // loop over reviews
+    for(int i = 0;i < reviewCount;i++) { // loop over reviews
 
-        if(!review_flag[i])  break; // if review not present break loop
-
-        if(reviewType[i] == 2 && reviewCustID[i] == custID) { // if review is of requested user
+        if(reviews[i].type == 2 && reviews[i].customerID == custID) { // if review is of requested user
 
             bool duplicate = false;
 
             for(int k = 0;k < distinctCounter;k++) { // check productID of the review with unique IDs array
 
-                if(distinctIDs[k] == reviewProID[i]) {
+                if(distinctIDs[k] == reviews[i].productID) {
 
                     duplicate = true;
                     break;
@@ -3471,7 +3372,7 @@ int* returnReviewedProducts(int custID,int reviewProID[],int reviewCustID[],int 
             }
 
             if(!duplicate) // if not already present add it
-                distinctIDs[distinctCounter++] = reviewProID[i];
+                distinctIDs[distinctCounter++] = reviews[i].productID;
          
         }
 
@@ -3480,27 +3381,47 @@ int* returnReviewedProducts(int custID,int reviewProID[],int reviewCustID[],int 
         return distinctIDs; // return unique IDs
 
 }
-int returnIndexByID(int IDs[],bool flag[],int ID,int size) {
+int returnIndexByID(product products[],int ID,int size) {
 
     for(int i = 0;i < size;i++)
-        if(flag[i] && IDs[i] == ID)
+        if(products[i].flag && products[i].ID == ID)
             return i;
     return -1;
 
 } 
+
+int returnIndexByID(moderator moderators[],int ID,int size) {
+
+    
+    for(int i = 0;i < size;i++)
+        if(moderators[i].flag && moderators[i].ID == ID)
+            return i;
+    return -1;
+
+}
+
+int returnIndexByID(customer customers[],int ID,int size) {
+
+    
+    for(int i = 0;i < size;i++)
+        if(customers[i].flag && customers[i].ID == ID)
+            return i;
+    return -1;
+
+}
 
 
 // File Handling
 
 //// Load the Data Stored in Comma Seperated files to arrays
 
-void loadData(bool pro_flag[],int pro_IDs[],string products[],double pro_cprices[],int pro_profit_percent[],unsigned long int pro_sell[],int pro_stock[],bool pro_active[],int& productCount,int MAX_PRODUCTS,
-              bool moder_flag[],string moder_first_name[],string moder_last_name[],string moder_username[],string moder_password[],string moder_CNIC[],string moder_email[],char moder_phone[][10],int moder_salary[],int moder_IDs[],int& moderID,int MAX_MODERATORS,
-              bool cust_flag[],string cust_name[],char cust_CNIC[][16],int cust_IDs[],int& custID,int MAX_CUSTOMERS,
-              int purchases[],double purchaseBill[],int& purchaseID,
-              int item_purchases[][4],int& item_purCount,
-              bool review_flag[],int reviewType[],int reviewProID[],int reviewCustID[],string reviews[],int reviewStatus[],int reviewModer[],int reviewRating[],int MAX_REVIEWS,
-              string reportSubject[],string reports[],bool report_flag[],int report_status[],int report_moderator[],int MAX_REPORTS) {
+void loadData(product products[],int& productCount,int MAX_PRODUCTS,
+              moderator moderators[],int MAX_MODERATORS,
+              customer customers[],int MAX_CUSTOMERS,int& custIDcounter,
+              purchase purchases[],int& purchaseCount,int& moderIDcounter,
+              item_purchase item_purchases[],int& item_purCount,
+              review reviews[],int MAX_REVIEWS,int& reviewCount,
+              report reports[],int MAX_REPORTS) {
 
     int IDcounter = -1;
 
@@ -3509,16 +3430,17 @@ void loadData(bool pro_flag[],int pro_IDs[],string products[],double pro_cprices
 
     while(repin) {
 
-        if(!(repin >> report_moderator[IDcounter]))
+        if(!(repin >> reports[IDcounter].moderatorID))
             break;
         repin.ignore();
-        getline(repin,reportSubject[IDcounter], ',');
-        repin >> report_status[IDcounter]; repin.ignore();
-        getline(repin,reports[IDcounter]);
+        getline(repin,reports[IDcounter].subject, ',');
+        repin >> reports[IDcounter].status; repin.ignore();
+        getline(repin,reports[IDcounter].body);
 
-        report_flag[IDcounter] = true;
+        reports[IDcounter].flag = true;
         IDcounter++;
     }
+
 
 
     repin.close();
@@ -3530,21 +3452,23 @@ void loadData(bool pro_flag[],int pro_IDs[],string products[],double pro_cprices
 
     while(revin) {
 
-        if(!(revin >> reviewStatus[IDcounter]))
+        if(!(revin >> reviews[IDcounter].status))
             break; 
         
         revin.ignore();
-        revin >> reviewType[IDcounter]; revin.ignore();
-        revin >> reviewModer[IDcounter]; revin.ignore();
-        revin >> reviewProID[IDcounter]; revin.ignore();
-        revin >> reviewCustID[IDcounter]; revin.ignore();
-        revin >> reviewRating[IDcounter]; revin.ignore();
-        getline(revin, reviews[IDcounter]);
-        review_flag[IDcounter] = true;
+        revin >> reviews[IDcounter].type; revin.ignore();
+        revin >> reviews[IDcounter].moderatorID; revin.ignore();
+        revin >> reviews[IDcounter].productID; revin.ignore();
+        revin >> reviews[IDcounter].customerID; revin.ignore();
+        revin >> reviews[IDcounter].rating; revin.ignore();
+        getline(revin, reviews[IDcounter].review);
+        reviews[IDcounter].flag = true;
 
         IDcounter++;
 
     }
+
+    reviewCount = IDcounter;
 
     revin.close();
 
@@ -3555,14 +3479,14 @@ void loadData(bool pro_flag[],int pro_IDs[],string products[],double pro_cprices
 
     while(itemin) {
     
-        if(!(itemin >> item_purchases[item_purCount][0]))
+        if(!(itemin >> item_purchases[item_purCount].purchaseID))
             break;
         itemin.ignore();
-        itemin >> item_purchases[item_purCount][1];
+        itemin >> item_purchases[item_purCount].productID;
         itemin.ignore();
-        itemin >> item_purchases[item_purCount][2];
+        itemin >> item_purchases[item_purCount].quantity;
         itemin.ignore();
-        itemin >> item_purchases[item_purCount][3];
+        itemin >> item_purchases[item_purCount].bill;
         itemin.ignore();
         
         item_purCount++;
@@ -3575,12 +3499,12 @@ void loadData(bool pro_flag[],int pro_IDs[],string products[],double pro_cprices
     ifstream purin("purchases.csv");
 
     while(purin) {
-        if(!(purin >> purchases[purchaseID]))
+        if(!(purin >> purchases[purchaseCount].customerID))
             break;
         purin.ignore();
-        purin >> purchaseBill[purchaseID];
+        purin >> purchases[purchaseCount].bill;
         purin.ignore();
-        purchaseID++;
+        purchaseCount++;
     }
 
     purin.close();
@@ -3592,22 +3516,22 @@ void loadData(bool pro_flag[],int pro_IDs[],string products[],double pro_cprices
 
     while(custin) {
 
-        getline(custin, cust_name[custID], ',');
-        if(cust_name[custID] == "")
+        getline(custin, customers[custIDcounter].name, ',');
+        if(customers[custIDcounter].name == "")
             break;
 
-        custin.getline(cust_CNIC[IDcounter], 16, ',');
+        custin.getline(customers[IDcounter].CNIC, 16, ',');
 
-        custin >> cust_IDs[custID]; custin.ignore();
+        custin >> customers[custIDcounter].ID; custin.ignore();
 
-        if(IDcounter < cust_IDs[custID])
-            IDcounter = cust_IDs[custID];
-        cust_flag[custID] = true;        
-        custID++;
+        if(IDcounter < customers[custIDcounter].ID)
+            IDcounter = customers[custIDcounter].ID;
+        customers[custIDcounter].flag = true;        
+        custIDcounter++;
 
     }
 
-    custID = IDcounter;
+    custIDcounter = IDcounter;
 
     custin.close();
 
@@ -3618,27 +3542,27 @@ void loadData(bool pro_flag[],int pro_IDs[],string products[],double pro_cprices
 
     while(moderin) {
 
-        getline(moderin, moder_first_name[moderID], ',');
+        getline(moderin, moderators[moderIDcounter].first_name, ',');
 
-        if(moder_first_name[moderID] == "")   break;
+        if(moderators[moderIDcounter].first_name == "")   break;
 
-        moder_flag[moderID] = true;
-        getline(moderin, moder_last_name[moderID], ',');
-        getline(moderin, moder_username[moderID], ',');
-        getline(moderin, moder_password[moderID], ',');
-        getline(moderin, moder_CNIC[moderID], ',');
-        getline(moderin, moder_email[moderID], ',');
-        moderin.getline(moder_phone[moderID], 10,',');
-        moderin >> moder_salary[moderID];   moderin.ignore();
-        moderin >> moder_IDs[moderID];   moderin.ignore();
+        moderators[moderIDcounter].flag = true;
+        getline(moderin, moderators[moderIDcounter].last_name, ',');
+        getline(moderin, moderators[moderIDcounter].username, ',');
+        getline(moderin, moderators[moderIDcounter].password, ',');
+        getline(moderin, moderators[moderIDcounter].CNIC, ',');
+        getline(moderin, moderators[moderIDcounter].email, ',');
+        moderin.getline(moderators[moderIDcounter].phone, 10,',');
+        moderin >> moderators[moderIDcounter].salary;   moderin.ignore();
+        moderin >> moderators[moderIDcounter].ID;   moderin.ignore();
 
-        if(IDcounter < moder_IDs[moderID])
-            IDcounter = moder_IDs[moderID];
+        if(IDcounter < moderators[moderIDcounter].ID)
+            IDcounter = moderators[moderIDcounter].ID;
 
-        moderID++;
+        moderIDcounter++;
     }
 
-    moderID = IDcounter;
+    moderIDcounter = IDcounter;
 
     moderin.close();
 
@@ -3651,28 +3575,28 @@ void loadData(bool pro_flag[],int pro_IDs[],string products[],double pro_cprices
 
     while(proin) {
 
-        if(!(proin >> pro_IDs[productCount]))
+        if(!(proin >> products[productCount].ID))
             break;
 
         proin.ignore();
 
-        getline(proin,products[productCount],',');
+        getline(proin,products[productCount].name,',');
         
-        proin >> pro_cprices[productCount];
+        proin >> products[productCount].price;
         proin.ignore();
-        proin >> pro_profit_percent[productCount];
+        proin >> products[productCount].profit_percent;
         proin.ignore();
-        proin >> pro_stock[productCount];
+        proin >> products[productCount].stock;
         proin.ignore();
-        proin >> pro_active[productCount];
+        proin >> products[productCount].active;
         proin.ignore();
-        proin >> pro_sell[productCount];
+        proin >> products[productCount].sell;
         proin.ignore();
 
-        pro_flag[productCount] = true;
+        products[productCount].flag = true;
 
-        if(pro_IDs[productCount] > IDcounter)
-            IDcounter = pro_IDs[productCount];
+        if(products[productCount].ID > IDcounter)
+            IDcounter = products[productCount].ID;
 
         productCount++;
 
@@ -3687,23 +3611,23 @@ void loadData(bool pro_flag[],int pro_IDs[],string products[],double pro_cprices
 
 //// Store the data stored in arrays to files with comma separated
 
-void storeData(bool pro_flag[],int pro_IDs[],string products[],double pro_cprices[],int pro_profit_percent[],unsigned long int pro_sell[],int pro_stock[],bool pro_active[],int& productCount,int MAX_PRODUCTS,
-               bool moder_flag[],string moder_first_name[],string moder_last_name[],string moder_username[],string moder_password[],string moder_CNIC[],string moder_email[],char moder_phone[][10],int moder_salary[],int moder_IDs[],int& moderID,int MAX_MODERATORS,
-               bool cust_flag[],string cust_name[],char cust_CNIC[][16],int cust_IDs[],int& custID,int MAX_CUSTOMERS,
-               int purchases[],double purchaseBill[],int& purchaseID,
-               int item_purchases[][4],int& item_purCount,
-               bool review_flag[],int reviewType[],int reviewProID[],int reviewCustID[],string reviews[],int reviewStatus[],int reviewModer[],int reviewRating[],int MAX_REVIEWS,
-               string reportSubject[],string reports[],bool report_flag[],int report_status[],int report_moderator[],int MAX_REPORTS) {
+void storeData(product products[],int productCount,int MAX_PRODUCTS,
+              moderator moderators[],int MAX_MODERATORS,
+              customer customers[],int MAX_CUSTOMERS,int& custIDcounter,
+              purchase purchases[],int& purchaseCount,int& moderIDcounter,
+              item_purchase item_purchases[],int& item_purCount,
+              review reviews[],int MAX_REVIEWS,int& reviewCount,
+              report reports[],int MAX_REPORTS) {
 
     ofstream repout("requests.csv");
 
     for(int i = 0;i < MAX_REPORTS;i++) {
 
-        if(report_flag[i]) {
-            repout << report_moderator[i] << ","
-                   << reportSubject[i] << ","
-                   << report_status[i] << ","
-                   << reports[i] << endl;
+        if(reports[i].flag) {
+            repout << reports[i].moderatorID << ","
+                   << reports[i].subject << ","
+                   << reports[i].status << ","
+                   << reports[i].body << endl;
         }
 
     }
@@ -3714,15 +3638,15 @@ void storeData(bool pro_flag[],int pro_IDs[],string products[],double pro_cprice
     ofstream revout("reviews.csv");
 
     for(int i = 0;i < MAX_REVIEWS;i++) {
-        if(review_flag[i]) {
+        if(reviews[i].flag) {
 
-            revout << reviewStatus[i] << ","
-                   << reviewType[i] << ","
-                   << reviewModer[i] << ","
-                   << reviewProID[i] << ","
-                   << reviewCustID[i] << ","
-                   << reviewRating[i] << ","
-                   << reviews[i] << endl;
+            revout << reviews[i].status << ","
+                   << reviews[i].type << ","
+                   << reviews[i].moderatorID << ","
+                   << reviews[i].productID << ","
+                   << reviews[i].customerID << ","
+                   << reviews[i].rating << ","
+                   << reviews[i].review << endl;
         }
     }
 
@@ -3734,10 +3658,10 @@ void storeData(bool pro_flag[],int pro_IDs[],string products[],double pro_cprice
 
     for(int i = 0;i < item_purCount; i++) {
 
-        itemout << item_purchases[i][0] << ","
-                << item_purchases[i][1] << ","
-                << item_purchases[i][2] << ","
-                << item_purchases[i][3] << endl;
+        itemout << item_purchases[i].purchaseID << ","
+                << item_purchases[i].productID << ","
+                << item_purchases[i].quantity << ","
+                << item_purchases[i].bill << endl;
 
     }
 
@@ -3747,9 +3671,9 @@ void storeData(bool pro_flag[],int pro_IDs[],string products[],double pro_cprice
 
     ofstream purout("purchases.csv");
 
-    for(int i = 0; i < purchaseID; i++) {
-        purout << purchases[i] << ","
-               << purchaseBill[i] << endl;
+    for(int i = 0; i < purchaseCount; i++) {
+        purout << purchases[i].customerID << ","
+               << purchases[i].bill << endl;
     }
 
     purout.close();
@@ -3759,10 +3683,10 @@ void storeData(bool pro_flag[],int pro_IDs[],string products[],double pro_cprice
     ofstream custout("customers.csv");
 
     for(int i = 0; i < MAX_CUSTOMERS;i++) {
-        if(cust_flag[i]) {
-            custout << cust_name[i] << ","
-                    << cust_CNIC[i] << ","
-                    << cust_IDs[i] << endl;
+        if(customers[i].flag) {
+            custout << customers[i].name << ","
+                    << customers[i].CNIC << ","
+                    << customers[i].ID << endl;
         }
     }
 
@@ -3774,16 +3698,16 @@ void storeData(bool pro_flag[],int pro_IDs[],string products[],double pro_cprice
     ofstream moderout("moderators.csv");
 
     for(int i = 0;i < MAX_MODERATORS;i++) {
-        if(moder_flag[i]) {
-            moderout << moder_first_name[i] << ","
-                    << moder_last_name[i] << ","
-                    << moder_username[i] << ","
-                    << moder_password[i] << ","
-                    << moder_CNIC[i] << ","
-                    << moder_email[i] << ","
-                    << moder_phone[i] << ","
-                    << moder_salary[i] << ","
-                    << moder_IDs[i]
+        if(moderators[i].flag) {
+            moderout << moderators[i].first_name << ","
+                    << moderators[i].last_name << ","
+                    << moderators[i].username << ","
+                    << moderators[i].password << ","
+                    << moderators[i].CNIC << ","
+                    << moderators[i].email << ","
+                    << moderators[i].phone << ","
+                    << moderators[i].salary << ","
+                    << moderators[i].ID
                     << endl;            
         }
     }
@@ -3793,14 +3717,14 @@ void storeData(bool pro_flag[],int pro_IDs[],string products[],double pro_cprice
     ofstream prout("products.csv");
 
     for(int i = 0; i < MAX_PRODUCTS; i++) {
-        if(pro_flag[i]) {
-            prout << pro_IDs[i] << ","
-                  << products[i] << ","
-                  << pro_cprices[i] << ","
-                  << pro_profit_percent[i] << ","
-                  << pro_stock[i] << ","
-                  << pro_active[i] << ","
-                  << pro_sell[i]
+        if(products[i].flag) {
+            prout << products[i].ID << ","
+                  << products[i].name << ","
+                  << products[i].price << ","
+                  << products[i].profit_percent << ","
+                  << products[i].stock << ","
+                  << products[i].active << ","
+                  << products[i].sell
                   << endl;
         }
     }
